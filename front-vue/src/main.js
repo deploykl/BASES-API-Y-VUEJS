@@ -13,4 +13,9 @@ import '@/assets/lib/fontawesome-v6.5.2/css/sharp-regular.css'
 import '@/assets/lib/fontawesome-v6.5.2/css/sharp-solid.css'
 import '@/assets/lib/fontawesome-v6.5.2/css/sharp-thin.css'
 
+
+//PERSONALIZADO ASIDE
+import '@/assets/css/main.css'
+
+
 createApp(App).use(store).use(router).mount('#app')
