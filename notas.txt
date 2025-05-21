@@ -1,0 +1,3 @@
+PARA NPM
+
+/npm install bootstrap bootstrap-icons
