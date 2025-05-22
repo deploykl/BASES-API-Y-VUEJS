@@ -4,7 +4,7 @@ load_dotenv() # llamada dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DATABASE_ENGINE = os.getenv("DATABASE_ENGINE", "sqlite") # Verifica que esta variable de entorno esté configurada correctamente
+DATABASE_ENGINE = os.getenv("DATABASE_ENGINE", "sqlserver") # Verifica que esta variable de entorno esté configurada correctamente
 print("DATABASE_ENGINE:", DATABASE_ENGINE)
 
 if DATABASE_ENGINE == "sqlite":

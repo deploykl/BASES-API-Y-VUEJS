@@ -37,7 +37,7 @@ THIRD_APPS = [
 
 OWN_APPS = [
     "api",
-    # "api.personal",
+    #"api.usuario",
 ]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
@@ -199,3 +199,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+#AUTH_USER_MODEL = "usuario.Usuario"  
+
