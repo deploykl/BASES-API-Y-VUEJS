@@ -2,7 +2,9 @@ from datetime import timedelta
 import os
 from pathlib import Path
 import config.db as db
-from corsheaders.defaults import default_headers
+
+AUTH_USER_MODEL = "user.User"  
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,7 +39,7 @@ THIRD_APPS = [
 
 OWN_APPS = [
     "api",
-    #"api.usuario",
+    "api.user",
 ]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
@@ -199,6 +201,4 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-#AUTH_USER_MODEL = "usuario.Usuario"  
 
