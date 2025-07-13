@@ -36,6 +36,7 @@ THIRD_APPS = [
     "corsheaders",
     "django_filters",
     "channels",
+    "django_redis",
 ]
 
 OWN_APPS = [
@@ -153,15 +154,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DATABASES = db.DATABASES
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -213,6 +205,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 3600  # 1 hora
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
 if not DEBUG and os.getenv("AWS_ACCESS_KEY_ID"):
     # Configuración para AWS S3 en producción
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
