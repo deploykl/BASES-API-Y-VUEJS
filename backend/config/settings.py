@@ -48,7 +48,7 @@ INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # Añade esto después de SessionMiddleware
@@ -210,8 +210,8 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 if not DEBUG and os.getenv("AWS_ACCESS_KEY_ID"):
     # Configuración para AWS S3 en producción
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
