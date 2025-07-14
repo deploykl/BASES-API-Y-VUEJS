@@ -7,3 +7,11 @@ PARA NPM
 solucion migracion
 
 python manage.py migrate --fake token_blacklist 0008
+
+
+//DOCKER CREAR REDIS 
+docker run --name mi-redis -d -p 6379:6379 redis
+
+//DOCKER STOP Y START
+- docker stop mi-redis
+- docker start mi-redis

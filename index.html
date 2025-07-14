@@ -66,6 +66,7 @@
         let userId = null;
 
         const socket = new WebSocket('ws://localhost:8000/ws/chat/');
+        //const socket = new WebSocket('ws://172.27.0.222:8000/ws/chat/');
 
         socket.onopen = function (e) {
             addSystemMessage("Conectando al chat...");
