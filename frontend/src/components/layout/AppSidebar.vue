@@ -209,7 +209,7 @@ onMounted(() => {
   position: fixed;
   top: var(--header-height);
   left: 0;
-  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
   color: white;
   transition: all var(--transition-speed) ease;
   z-index: 1001;
@@ -300,6 +300,7 @@ onMounted(() => {
 
 .menu-item span {
   white-space: nowrap;
+
 }
 
 .submenu-arrow {
@@ -313,15 +314,52 @@ onMounted(() => {
 }
 
 .submenu-item {
+  position: relative; /* Necesario para posicionar la barra lateral */
   display: flex;
   align-items: center;
   gap: 15px;
+    padding-left: 55px; /* Aumenta el padding para separar la barra del texto */
+  font-size: 0.9rem;
+
   padding: 10px 20px 10px 50px;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.3s ease;
 }
+.submenu-item::before {
+  height: 0%; /* Inicia oculta */
+  transition: height 0.3s ease;
+}
 
+.submenu-item:hover::before {
+  height: 100%; /* Crece al hacer hover */
+}
+
+.active .submenu-item::before {
+  height: 100%; /* Siempre visible en activo */
+}
+/* Barra lateral decorativa */
+.submenu-item::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.3); /* Color sutil por defecto */
+  transition: all 0.3s ease;
+}
+/* Barra lateral para ítem activo */
+.active .submenu-item::before {
+  background: white; /* Color destacado */
+  height: 100%;
+  opacity: 1;
+}
+
+/* Efecto hover */
+.submenu-item:hover::before {
+  background: rgba(255, 255, 255, 0.6);
+}
 .submenu-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: white;

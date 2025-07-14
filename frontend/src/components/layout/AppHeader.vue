@@ -133,7 +133,8 @@ const logout = async () => {
 <style scoped>
 /* Base Styles */
 .header {
-  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+background: linear-gradient(to right bottom, #011a27, #023047, #03496e); 
+/* background: linear-gradient(to right bottom, #011a27, #023047, #03496e); */
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   height: 70px;
   padding: 0 2rem;
