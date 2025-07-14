@@ -72,33 +72,21 @@ class LoginView(APIView):
 
         return Response(user_data, status=status.HTTP_200_OK)
     
-class LoginView1(APIView):
+class LogoutView(APIView):
     permission_classes = [AllowAny]
-    
-    def get(self, request):
-        # Para peticiones GET (cuando se accede desde el navegador)
-        return render(request, 'login.html', {'next': request.GET.get('next', '')})
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(request, username=username, password=password)
+        refresh_token = request.data.get('refresh')
+        if not refresh_token:
+            return Response({"detail": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user is None:
-            return Response({'detail': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Si es una petición HTML
-        if request.accepted_renderer.format == 'html':
-            from django.contrib.auth import login
-            login(request, user)  # Esto crea la sesión tradicional
-            next_url = request.POST.get('next', '/api/schema/swagger/')
-            return HttpResponseRedirect(next_url)
-        
-        # Si es API (devuelve JWT)
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-            'is_superuser': user.is_superuser,
-            'is_staff': user.is_staff,
-        })
+        try:
+            # Crea un objeto RefreshToken a partir del token recibido
+            token = RefreshToken(refresh_token)
+            # Añade el token a la lista negra
+            token.blacklist()
+            return Response({"detail": "Logout successful"}, status=status.HTTP_205_RESET_CONTENT)
+        except InvalidToken:
+            return Response({"detail": "Invalid refresh token."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
