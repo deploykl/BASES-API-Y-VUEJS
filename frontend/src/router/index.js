@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import NotFoundView from '../views/NotFoundView.vue'; // Componente para 404
+import adminPOI from './poi';
 
 const routes = [
   {
@@ -19,6 +20,8 @@ const routes = [
       title: 'Página no encontrada',
     },
   },
+  // INTEGRANDO POI ADMIN ROUTES
+  ...adminPOI,
 ];
 
 const router = createRouter({
