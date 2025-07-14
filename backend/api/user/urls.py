@@ -13,9 +13,6 @@ urlpatterns = [
     #path('logout/', LogoutView.as_view(), name='logout'),
     #path('password/reset/', PasswordResetRequestView.as_view(), name='password-reset'),
     #path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
-    
-    # Añade estas rutas para el login tradicional
-path('accounts/login/', auth_views.LoginView1.as_view(template_name='login.html'), name='login-api'),
 ] + router.urls
 
 
