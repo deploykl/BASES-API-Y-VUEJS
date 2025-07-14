@@ -6,7 +6,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = "chat_room"
         self.room_group_name = f"chat_{self.room_name}"
-        self.user_id = str(uuid.uuid4())[:8]  # ID único corto para el usuario
+        self.user_id = str(uuid.uuid4())[:8]  
         
         await self.channel_layer.group_add(
             self.room_group_name,
