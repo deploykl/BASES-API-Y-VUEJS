@@ -10,5 +10,5 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('image', 'genero'),
         }),
     )
-    list_display = ('username', 'email', 'first_name', 'last_name', 'genero', 'is_staff')
-    list_filter = ('genero', 'is_staff', 'is_superuser')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'genero', 'is_staff', 'is_superuser', 'is_active' , 'image')
+    list_filter = ('genero', 'is_staff', 'is_superuser', 'is_active')
