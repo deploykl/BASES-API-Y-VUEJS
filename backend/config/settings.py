@@ -65,7 +65,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1:8080",
     "http://172.27.0.222:8080",
-    
     "http://localhost:4000",
     "http://127.0.0.1:4000",
     "http://172.27.0.222:4000",
@@ -115,10 +114,18 @@ SPECTACULAR_SETTINGS = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "PREPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.preprocess_exclude_path_format",
+    ],
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
         "persistAuthorization": True,
     },
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAuthenticated"],
+    "SERVE_AUTHENTICATION": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
     "COMPONENT_SPLIT_REQUEST": True,
     "SECURITY": [
         {"Bearer": []},  # Necesario para mostrar el botón "Authorize"
@@ -264,3 +271,6 @@ CACHES = {
         },
     }
 }
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/api/schema/swagger/'
