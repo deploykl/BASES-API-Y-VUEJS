@@ -123,42 +123,6 @@ const menuItems = ref([
     path: '/alertas',
     submenu: null
   },
-  {
-    title: 'Game',
-    icon: 'fa-gamepad',
-    path: '/game',
-    submenu: null
-  },
-    {
-    title: 'Archivos',
-    icon: 'fa-file',
-    path: '/archivos',
-    submenu: null
-  },
-  {
-    title: 'Boletin',
-    icon: 'fa-book',
-    path: '/boletin',
-    submenu: null
-  },
-  {
-    title: 'Boletin-list',
-    icon: 'fa-pen',
-    path: '/boletin-list',
-    submenu: null
-  },
-    {
-    title: 'Agregar Reunión',
-    icon: 'fa-pen',
-    path: '/reuniones/admin',
-    submenu: null
-  },
-    {
-    title: 'Reuniones',
-    icon: 'fa-pen',
-    path: '/reuniones',
-    submenu: null
-  },
 ])
 
 const toggleSubmenu = (index) => {

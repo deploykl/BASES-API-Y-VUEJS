@@ -11,10 +11,6 @@
       <!-- Navigation -->
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
-          <!-- Clock Component -->
-          <li class="nav-item">
-            <clock-component-vue />
-          </li>
 
           <!-- User Profile -->
           <li class="nav-item dropdown">
@@ -40,7 +36,6 @@
 </template>
 
 <script setup>
-import ClockComponentVue from '@/components/widgets/ClockComponent.vue';
 
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
