@@ -7,7 +7,7 @@ from .models import User
 class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Información adicional', {
-            'fields': ('image', 'genero', 'telegram_chat_id'),
+            'fields': ('image', 'genero'),
         }),
     )
     list_display = ('username', 'email', 'first_name', 'last_name', 'genero', 'is_staff')
