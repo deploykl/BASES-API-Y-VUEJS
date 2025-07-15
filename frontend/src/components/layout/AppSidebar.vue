@@ -1,20 +1,14 @@
 <template>
-  <!-- Botón de toggle para móvil (siempre visible en móvil) -->
-  <div v-if="isMobile" class="mobile-toggle-btn" @click="toggleSidebar">
-    <i class="fas fa-bars"></i>
-  </div>
-
   <!-- Sidebar con overlay en móvil -->
   <div v-if="isMobile && !isCollapsed" class="sidebar-overlay" @click="toggleSidebar"></div>
 
   <aside :class="['sidebar', { 'collapsed': isCollapsed, 'mobile-hidden': isMobile && isCollapsed }]">
-    <!-- Botón para colapsar/expandir (oculto en móvil) -->
-    <div class="toggle-btn" @click="toggleSidebar" v-if="!isMobile">
-      <i :class="[isCollapsed ? 'fas fa-angle-double-right' : 'fas fa-angle-double-left']"></i>
-    </div>
 
     <!-- Logo -->
-    <div class="sidebar-header"></div>
+    <div class="sidebar-header">
+      <img src="@/assets/logo.png" alt="Logo" class="logo-img">
+      <span class="logo-text" v-if="!isCollapsed || isMobile">OBS-Salud</span>
+    </div>
 
     <!-- Menú principal -->
     <nav class="sidebar-menu">
@@ -36,7 +30,6 @@
             <i v-if="item.submenu && (!isCollapsed || isMobile)"
               :class="['fas', 'submenu-arrow', isSubmenuOpen(index) ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
           </div>
-
 
           <!-- Submenús -->
           <transition name="slide">
@@ -79,10 +72,25 @@ const props = defineProps({
 
 // Función para alternar el sidebar
 const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
-  emit('toggle-collapse', isCollapsed.value)
-}
-
+  isCollapsed.value = !isCollapsed.value;
+  emit('toggle-collapse', isCollapsed.value);
+  // Añade esta línea para sincronizar con el header
+  emit('update:isCollapsed', isCollapsed.value);
+};
+// En el script setup, después de toggleSidebar()
+watch(isCollapsed, (newVal) => {
+  document.documentElement.style.setProperty(
+    '--sidebar-width', 
+    newVal ? '70px' : '250px'
+  );
+});
+// Inicializar el valor
+onMounted(() => {
+  document.documentElement.style.setProperty(
+    '--sidebar-width', 
+    isCollapsed.value ? '70px' : '250px'
+  );
+});
 // Sincronizamos con los cambios de props
 watch(() => props.isCollapsed, (newVal) => {
   isCollapsed.value = newVal
@@ -191,6 +199,7 @@ onMounted(() => {
     }
   })
 })
+
 </script>
 
 <style scoped>
@@ -198,18 +207,18 @@ onMounted(() => {
 :root {
   --sidebar-width: 250px;
   --sidebar-collapsed-width: 70px;
-  --header-height: 60px;
   --transition-speed: 0.3s;
+  --header-height: 70px;
 }
 
 /* Estilos base */
 .sidebar {
   width: var(--sidebar-width);
-  height: calc(100vh - var(--header-height));
+  height: 100vh;
   position: fixed;
-  top: var(--header-height);
   left: 0;
-background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
+  top: 0;
+  background: #364257;
   color: white;
   transition: all var(--transition-speed) ease;
   z-index: 1001;
@@ -217,6 +226,7 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  border-bottom-right-radius: 15px;
 }
 
 .sidebar.collapsed {
@@ -226,35 +236,32 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 /* Encabezado del sidebar */
 .sidebar-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 20px 0;
+  padding: 20px;
+  gap: 10px;
+  height: var(--header-height);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Botón de toggle */
-.toggle-btn {
-  position: absolute;
-  right: 10px;
-  top: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: white;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 101;
+.logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
-.toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+.logo-text {
+  font-weight: 600;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  transition: transform 0.3s ease;
 }
 
+.logo-text:hover {
+  transform: scale(1.03);
+}
 /* Estilos del menú */
 .sidebar-menu {
   flex: 1;
@@ -300,7 +307,6 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 
 .menu-item span {
   white-space: nowrap;
-
 }
 
 .submenu-arrow {
@@ -314,30 +320,31 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 }
 
 .submenu-item {
-  position: relative; /* Necesario para posicionar la barra lateral */
+  position: relative;
   display: flex;
   align-items: center;
   gap: 15px;
-    padding-left: 55px; /* Aumenta el padding para separar la barra del texto */
+  padding-left: 55px;
   font-size: 0.9rem;
-
   padding: 10px 20px 10px 50px;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.3s ease;
 }
+
 .submenu-item::before {
-  height: 0%; /* Inicia oculta */
+  height: 0%;
   transition: height 0.3s ease;
 }
 
 .submenu-item:hover::before {
-  height: 100%; /* Crece al hacer hover */
+  height: 100%;
 }
 
 .active .submenu-item::before {
-  height: 100%; /* Siempre visible en activo */
+  height: 100%;
 }
+
 /* Barra lateral decorativa */
 .submenu-item::before {
   content: '';
@@ -346,12 +353,13 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
   top: 0;
   height: 100%;
   width: 2px;
-  background: rgba(255, 255, 255, 0.3); /* Color sutil por defecto */
+  background: rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
 }
+
 /* Barra lateral para ítem activo */
 .active .submenu-item::before {
-  background: white; /* Color destacado */
+  background: white;
   height: 100%;
   opacity: 1;
 }
@@ -360,8 +368,9 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 .submenu-item:hover::before {
   background: rgba(255, 255, 255, 0.6);
 }
+
 .submenu-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #596170;
   color: white;
 }
 
@@ -399,7 +408,7 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 .mobile-toggle-btn {
   position: fixed;
   left: 15px;
-  top: calc(var(--header-height) + 5px);
+  top: 20px;
   background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
   color: white;
   width: 40px;
@@ -421,7 +430,7 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 /* Overlay para móviles */
 .sidebar-overlay {
   position: fixed;
-  top: var(--header-height);
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
@@ -464,7 +473,7 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
   .sidebar.collapsed .menu-item span,
   .sidebar.collapsed .submenu-arrow,
   .sidebar.collapsed .user-details,
-  .sidebar.collapsed .logo-full {
+  .sidebar.collapsed .logo-text {
     display: none;
   }
 
@@ -479,6 +488,11 @@ background: linear-gradient(to bottom, #011D2D, #023047, #03456D);
 
   .sidebar.collapsed .sidebar-header {
     padding: 20px 0;
+    justify-content: center;
+  }
+
+  .sidebar.collapsed .logo-img {
+    margin: 0 auto;
   }
 
   .sidebar.collapsed .toggle-btn {

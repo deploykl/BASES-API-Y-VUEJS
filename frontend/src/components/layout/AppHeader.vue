@@ -1,17 +1,19 @@
 <template>
   <header id="header" class="header fixed-top">
     <div class="container-fluid d-flex align-items-center justify-content-between">
-      <!-- Logo Section -->
-      <div class="d-flex align-items-center">
-        <a href="#" class="logo d-flex align-items-center">
-          <span class="logo-text">OBS-Salud</span>
-        </a>
-      </div>
+      
+      <button v-if="!isMobile" class="toggle-btn" @click="toggleSidebar">
+        <i :class="[isCollapsed ? 'fas fa-angle-double-right' : 'fas fa-angle-double-left']"></i>
+      </button>
+
+      <!-- Botón de toggle para móvil -->
+      <button v-if="isMobile" class="mobile-toggle-btn" @click="toggleSidebar">
+        <i class="fas fa-bars"></i>
+      </button>
 
       <!-- Navigation -->
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
-
           <!-- User Profile -->
           <li class="nav-item dropdown">
             <a class="nav-profile d-flex align-items-center" href="#" @click="toggleDropdown">
@@ -36,17 +38,26 @@
 </template>
 
 <script setup>
-
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { api, getAuthToken } from '@/components/services/Axios';
+import { api } from '@/components/services/Axios';
 
 const userName = ref('');
 const userLastName = ref('');
 const userImage = ref('');
 const router = useRouter();
 const imgServerURL = process.env.VUE_APP_IMG_SERVER;
-const imgLocalURL = process.env.VUE_APP_IMG_LOCAL;
+
+const props = defineProps({
+  isCollapsed: Boolean,
+  isMobile: Boolean
+});
+
+const emit = defineEmits(['toggle-sidebar']);
+
+const toggleSidebar = () => {
+  emit('toggle-sidebar');
+};
 
 const fetchUserProfile = async () => {
   const accessToken = localStorage.getItem('auth_token');
@@ -57,42 +68,33 @@ const fetchUserProfile = async () => {
       });
       userName.value = response.data.first_name || '';
       userLastName.value = response.data.last_name || '';
-      
-      // Manejo seguro de la imagen
+
       if (response.data.image) {
-        // Si la imagen ya incluye la ruta completa
         if (response.data.image.startsWith('http')) {
           userImage.value = response.data.image;
         } else {
-          // Si es una ruta relativa
           userImage.value = joinUrl(imgServerURL, response.data.image);
         }
       } else {
-        // Imagen por defecto
         userImage.value = joinUrl(imgServerURL, 'img/empty.png');
       }
     } catch (error) {
       console.error('Error al obtener el perfil:', error);
-      // Imagen por defecto en caso de error
       userImage.value = joinUrl(imgServerURL, 'img/empty.png');
     }
   } else {
-    // Imagen por defecto si no hay token
     userImage.value = joinUrl(imgServerURL, 'img/empty.png');
   }
 };
 
 function joinUrl(base, path) {
-  // Elimina barras finales del base y barras iniciales del path
   const cleanBase = base.replace(/\/+$/, '');
   const cleanPath = path.replace(/^\/+/, '');
   
-  // Si el path ya incluye 'media', no lo dupliques
   if (cleanPath.startsWith('media/') || cleanPath.startsWith('/media/')) {
     return `${cleanBase}/${cleanPath}`;
   }
   
-  // Construye la URL final
   return `${cleanBase}/media/${cleanPath}`;
 }
 
@@ -109,8 +111,6 @@ const logout = async () => {
   }
 
   try {
-    console.log('Token de refresco enviado para blacklist:', refreshToken);
-
     const response = await api.post('user/logout/', {
       refresh: refreshToken,
     });
@@ -126,37 +126,62 @@ const logout = async () => {
     console.error('Error al cerrar sesión:', error);
   }
 };
-
 </script>
-
 
 <style scoped>
 /* Base Styles */
 .header {
-background: linear-gradient(to right bottom, #011a27, #023047, #03496e); 
-/* background: linear-gradient(to right bottom, #011a27, #023047, #03496e); */
+  background: #3F4D67;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
   height: 70px;
-  padding: 0 2rem;
+  left: var(--sidebar-width, 250px);
+  width: calc(100% - var(--sidebar-width, 250px));
+  right: 0;
+  padding: 0 1rem;
   transition: all 0.3s ease;
   z-index: 1000;
+  border-bottom-right-radius: 15px;
+}
+
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.mobile-toggle-btn {
+  display: none;
+  background: #4CAF50;
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 15px;
 }
 
 .container-fluid {
   height: 100%;
 }
 
-/* Logo Styles */
-.logo {
-  text-decoration: none;
-  transition: transform 0.3s ease;
-}
-
-.logo:hover {
-  transform: scale(1.03);
-}
-
-/* Agrega esto al inicio de tus estilos para resetear las listas */
+/* Reset list styles */
 .header-nav ul {
   list-style: none;
   padding-left: 0;
@@ -166,34 +191,6 @@ background: linear-gradient(to right bottom, #011a27, #023047, #03496e);
 .header-nav li {
   list-style: none;
   display: inline-block;
-  /* o flex, según necesites */
-}
-
-.logo-img {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-}
-
-.logo-text {
-  color: white;
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-left: 10px;
-  letter-spacing: 0.5px;
-}
-
-/* Toggle Button */
-.toggle-sidebar-btn {
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.toggle-sidebar-btn:hover {
-  color: #f8f9fa;
-  transform: scale(1.1);
 }
 
 /* User Profile */
@@ -248,26 +245,20 @@ background: linear-gradient(to right bottom, #011a27, #023047, #03496e);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Clock Component */
-.clock-container {
-  color: white;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50px;
-}
-
-/* Estilos existentes... */
-
 /* Ajustes para móvil */
 @media (max-width: 768px) {
   .header {
+    left: 0;
     padding: 0 0.5rem;
+    width: 100% !important;
   }
 
-  .logo-text {
-    font-size: 1rem;
-    margin-left: 5px;
+  .mobile-toggle-btn {
+    display: flex;
+  }
+
+  .toggle-btn {
+    display: none;
   }
 
   .user-name {
@@ -290,12 +281,6 @@ background: linear-gradient(to right bottom, #011a27, #023047, #03496e);
   .avatar-container {
     width: 32px;
     height: 32px;
-  }
-
-  /* Asegúrate que el reloj sea legible */
-  .clock-container {
-    font-size: 0.8rem;
-    padding: 0.3rem 0.5rem;
   }
 }
 </style>
