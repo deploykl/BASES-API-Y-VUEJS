@@ -1,7 +1,7 @@
 import HomeView from "../views/HomeView.vue";
 
 
-const adminPOI = [
+const AdminPoi = [
    {
       path: "/2",
       name: "home2",
@@ -12,4 +12,4 @@ const adminPOI = [
     },
 ];
 
-export default adminPOI;
+export default AdminPoi;

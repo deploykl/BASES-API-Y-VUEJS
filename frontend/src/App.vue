@@ -31,7 +31,10 @@ const isCollapsed = ref(false)
 const isMobile = ref(false)
 
 const shouldShowLayout = computed(() => {
-  const hiddenRoutes = ['not-found']
+  const hiddenRoutes = [
+    'not-found',
+    'login',
+  ]
   return !hiddenRoutes.includes(route.name)
 })
 

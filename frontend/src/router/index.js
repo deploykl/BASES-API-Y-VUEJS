@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import NotFoundView from '../components/layout/NotFoundView.vue'; // Componente para 404
-import adminPOI from './poi';
+import AdminPoi from './AdminPoi';
+import AdminAuth from './AdminAuth';
 
 const routes = [
   {
@@ -21,7 +22,8 @@ const routes = [
     },
   },
   // INTEGRANDO POI ADMIN ROUTES
-  ...adminPOI,
+  ...AdminPoi,
+  ...AdminAuth,
 ];
 
 const router = createRouter({
