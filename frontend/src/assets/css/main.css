@@ -4,10 +4,7 @@
   box-sizing: border-box;
   font-family: "Aptos", sans-serif;
 }
-a {
-  color: #4154f1;
-  text-decoration: none;
-}
+
 /* ==============BUTTONS ======================= */
 button[type="submit"] {
   background-color: #6f42c1 !important;

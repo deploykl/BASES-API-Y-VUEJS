@@ -61,7 +61,6 @@ import { api } from '@/components/services/Axios';
 
 const userName = ref('');
 const userLastName = ref('');
-const userEmail = ref(''); // Asegúrate de tener esto definido
 const userImage = ref('');
 const router = useRouter();
 const imgServerURL = process.env.VUE_APP_IMG_SERVER;
@@ -77,12 +76,6 @@ const emit = defineEmits(['toggle-sidebar'])
 const toggleSidebar = () => {
   emit('toggle-sidebar')
 }
-
-// Función para alternar el dropdown
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-}
-
 // Cerrar el dropdown al hacer clic fuera
 const handleClickOutside = (event) => {
   const dropdown = document.querySelector('.dropdown-menu');
@@ -95,6 +88,7 @@ const handleClickOutside = (event) => {
   }
 };
 
+
 const fetchUserProfile = async () => {
   const accessToken = localStorage.getItem('auth_token');
   if (accessToken) {
@@ -104,7 +98,6 @@ const fetchUserProfile = async () => {
       });
       userName.value = response.data.first_name || '';
       userLastName.value = response.data.last_name || '';
-      userEmail.value = response.data.email || ''; // Asegúrate de obtener el email
 
       if (response.data.image) {
         if (response.data.image.startsWith('http')) {
@@ -138,12 +131,11 @@ function joinUrl(base, path) {
 onMounted(() => {
   fetchUserProfile();
   document.addEventListener('click', handleClickOutside);
-});
 
+});
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
-
 const logout = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
 
@@ -239,7 +231,7 @@ const logout = async () => {
 /* User Profile */
 .nav-profile {
   text-decoration: none;
-  color: #364257;
+  color: white;
   transition: all 0.3s ease;
   padding: 0.5rem 1rem;
   border-radius: 50px;

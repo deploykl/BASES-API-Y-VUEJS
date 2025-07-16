@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
-import NotFoundView from '../views/NotFoundView.vue'; // Componente para 404
+import NotFoundView from '../components/layout/NotFoundView.vue'; // Componente para 404
 import adminPOI from './poi';
 
 const routes = [

@@ -1,26 +1,18 @@
 <template>
   <div class="app-layout">
-    <template v-if="shouldShowComponents">
-      <AppHeader 
-        :isCollapsed="isCollapsed" 
-        :isMobile="isMobile"
-        @toggle-sidebar="toggleSidebar"
-      />
+    <template v-if="shouldShowLayout">
+      <AppHeader :is-collapsed="isCollapsed" :is-mobile="isMobile" @toggle-sidebar="toggleSidebar" />
       <div class="main-container">
-        <AppSidebar 
-          :isCollapsed="isCollapsed"
-          :isMobile="isMobile"
-          @toggle-collapse="toggleSidebar"
-        />
-        <main class="content-area" :class="{ 'sidebar-collapsed': isCollapsed }">
-          <div class="content-wrapper">
+        <AppSidebar :is-collapsed="isCollapsed" :is-mobile="isMobile" @toggle-collapse="toggleSidebar" />
+        <div class="content-wrapper">
+          <main class="content-area">
             <router-view />
-          </div>
-          <AppFooter/>
-        </main>
+          </main>
+          <AppFooter />
+        </div>
       </div>
     </template>
-    
+
     <template v-else>
       <router-view />
     </template>
@@ -28,8 +20,8 @@
 </template>
 
 <script setup>
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { ref, computed, onMounted } from 'vue'
 import AppHeader from './components/layout/AppHeader.vue'
 import AppFooter from './components/layout/AppFooter.vue'
 import AppSidebar from './components/layout/AppSidebar.vue'
@@ -38,113 +30,98 @@ const route = useRoute()
 const isCollapsed = ref(false)
 const isMobile = ref(false)
 
-const shouldShowComponents = computed(() => {
-  const hiddenRoutes = [
-    'HOME', 
-    'login', 
-    'password-reset', 
-    'reset-password', 
-    'reuniones'
-  ]
+const shouldShowLayout = computed(() => {
+  const hiddenRoutes = ['not-found']
   return !hiddenRoutes.includes(route.name)
 })
 
-const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
-  updateSidebarWidth()
-}
-
-const updateSidebarWidth = () => {
-  document.documentElement.style.setProperty(
-    '--sidebar-width', 
-    isCollapsed.value ? '70px' : '250px'
-  )
+const updateCssVariables = () => {
+  const width = isCollapsed.value ? '0px' : '250px'
+  document.documentElement.style.setProperty('--sidebar-width', width)
 }
 
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth < 768
-  if (isMobile.value) {
+  // Solo establecer el estado inicial si no ha sido modificado por el usuario
+  if (isMobile.value && !localStorage.getItem('sidebar-state-changed')) {
     isCollapsed.value = true
   }
-  updateSidebarWidth()
+  updateCssVariables()
 }
+
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value
+  // Marcar que el usuario ha modificado el estado
+  localStorage.setItem('sidebar-state-changed', 'true')
+}
+
+watch(isCollapsed, updateCssVariables)
 
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize)
+})
 </script>
 
 <style>
 :root {
-  --header-height: 70px;
   --sidebar-width: 250px;
-  --sidebar-collapsed-width: 70px;
   --transition-speed: 0.3s;
-  --footer-height: 60px;
 }
 
-html, body, #app, .app-layout {
+html,
+body,
+#app,
+.app-layout {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #F4F7FA;
 }
 
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
+.app-layout {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  /* Usar viewport height */
 }
 
 .main-container {
   display: flex;
   flex: 1;
-  margin-top: var(--header-height);
-  position: relative;
-  min-height: calc(100vh - var(--header-height));
+  padding: 15px;
 }
 
-.home {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 20px;
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-left: var(--sidebar-width);
 }
 
 .content-area {
   flex: 1;
   padding: 15px;
   transition: margin-left var(--transition-speed) ease;
-  width: 100%;
-  background-color: #F4F7FA;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - var(--header-height));
 }
 
-.content-wrapper {
-  flex: 1;
-  padding-bottom: 20px;
-}
-
-/* Estilos responsivos solo para layout con sidebar */
-@media (min-width: 769px) {
-  .content-area {
-    margin-left: var(--sidebar-width);
-  }
-  
-  .content-area.sidebar-collapsed {
-    margin-left: var(--sidebar-collapsed-width);
+@media (max-width: 768px) {
+  .content-wrapper {
+    margin-left: 0;
   }
 }
 
-/* Ajustes para el footer */
-footer {
-  background: linear-gradient(to right bottom, #011a27, #023047, #03496e);
-  color: white;
-  padding: 20px 0;
-  margin-top: auto;
+.home {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
 }
 </style>
