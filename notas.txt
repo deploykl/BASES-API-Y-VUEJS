@@ -15,3 +15,13 @@ docker run --name mi-redis -d -p 6379:6379 redis
 //DOCKER STOP Y START
 - docker stop mi-redis
 - docker start mi-redis
+
+//NOTA MODULOS
+MODULOS	ROLES	REUTILIZA	DETALLE
+			
+PATRIMONIO	SUPERSUER	IS_SUPERUSER	VE TODOS LOS MODULOS Y ADMIN DJANGO
+POI	ADMIN		VERA SOLO TODOS LOS MODULOS
+GASTO	Gestor POI		
+PERSONAL	Gestor Gasto		
+	Gestor Personal		
+	Gestor Patrimonio		
