@@ -12,7 +12,6 @@
         </div>
       </div>
     </template>
-
     <template v-else>
       <router-view />
     </template>
