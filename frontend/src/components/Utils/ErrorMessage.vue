@@ -1,51 +1,39 @@
 <template>
   <transition name="slide-down">
-    <div v-if="message" class="error-message" :class="type">
+    <div v-if="errorStore.message" class="error-message" :class="errorStore.type">
       <div class="error-content">
         <i :class="iconClass"></i>
-        <span>{{ message }}</span>
+        <span>{{ errorStore.message }}</span>
       </div>
     </div>
   </transition>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useErrorStore } from '@/store/errorStore'
 
-const props = defineProps({
-  message: String,
-  type: {
-    type: String,
-    default: 'error', // puede ser 'error', 'warning', 'success'
-    validator: (value) => ['error', 'warning', 'success'].includes(value)
-  }
-})
+const errorStore = useErrorStore()
 
 const iconClass = computed(() => {
   return {
     'error': 'fas fa-exclamation-circle',
     'warning': 'fas fa-exclamation-triangle',
     'success': 'fas fa-check-circle'
-  }[props.type]
+  }[errorStore.type]
 })
 </script>
 
 <style scoped>
 .error-message {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 300px;
-  max-width: 90%;
+  width: 100%;
   padding: 12px 16px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin: 0 0 20px 0;
   display: flex;
   justify-content: center;
   font-size: 14px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .error-content {
@@ -80,6 +68,17 @@ const iconClass = computed(() => {
 .slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
+  transform: translateY(-10px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

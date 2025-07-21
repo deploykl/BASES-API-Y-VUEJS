@@ -10,19 +10,12 @@
             <div class="logo-circle">
               <img src="@/assets/img/account/user-account.png" alt="Logo" class="logo-img" />
             </div>
-            <h2 class="welcome-text">Bienvenido a</h2>
-            <h1 class="app-title">CEO SPACE</h1>
+            <h1 class="app-title">Panel de Control</h1>
+            <h2 class="welcome-text">Autenticación requerida</h2>
           </div>
 
           <!-- Mensaje de error mejorado -->
-          <transition name="slide-down">
-            <div v-if="errorMessage" class="error-message">
-              <div class="error-content">
-                <i class="fas fa-exclamation-circle me-1"></i>
-                <span>{{ errorMessage }}</span>
-              </div>
-            </div>
-          </transition>
+          <ErrorMessage />
 
           <!-- Formulario con diseño moderno -->
           <form @submit.prevent="handleSubmit" class="login-form">
@@ -80,13 +73,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/components/services/Axios';
+import { useErrorStore } from '@/store/errorStore' // Importa el store
 
 const username = ref('')
 const password = ref('')
-const errorMessage = ref('')
 const isLoading = ref(false)
 const showPassword = ref(false)
 const router = useRouter()
+const errorStore = useErrorStore() // Usa el store
 
 // Verificar si ya está autenticado al cargar el componente
 onMounted(() => {
@@ -104,7 +98,7 @@ const handleLowerCASE = (event) => {
 };
 
 const handleSubmit = async () => {
-  errorMessage.value = '';
+  errorStore.clearMessage() // Usa el store para limpiar
   isLoading.value = true;
 
   try {
@@ -116,7 +110,7 @@ const handleSubmit = async () => {
     const { access, refresh, is_superuser, is_staff } = response.data;
 
     if (!access) {
-      errorMessage.value = 'No se recibió token de acceso.';
+      errorStore.showMessage('No se recibió token de acceso.') // Usa el store
       return;
     }
 
@@ -131,9 +125,9 @@ const handleSubmit = async () => {
 
   } catch (error) {
     if (error.response?.data?.detail) {
-      errorMessage.value = error.response.data.detail;
+      errorStore.showMessage(error.response.data.detail) // Usa el store
     } else {
-      errorMessage.value = 'Error al conectar con el servidor. Por favor intente nuevamente.';
+      errorStore.showMessage('Error al conectar con el servidor. Por favor intente nuevamente.') // Usa el store
     }
   } finally {
     isLoading.value = false;
@@ -247,28 +241,6 @@ const handleSubmit = async () => {
   max-width: 250px;
   height: 100px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-/* Mensaje de error */
-.error-message {
-  background-color: #ffebee;
-  color: #c62828;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-  /* Centra horizontalmente */
-  font-size: 14px;
-  border-left: 4px solid #c62828;
-}
-
-.error-content {
-  display: flex;
-  align-items: center;
-  /* Centra verticalmente los elementos internos */
-  gap: 8px;
-  /* Espacio entre el icono y el texto */
 }
 
 /* Campos de entrada */

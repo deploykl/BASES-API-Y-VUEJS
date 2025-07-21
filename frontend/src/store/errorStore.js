@@ -3,11 +3,11 @@ import { ref } from 'vue'
 
 export const useErrorStore = defineStore('error', () => {
   const message = ref('')
-  const type = ref('error') // 'error', 'warning', 'success'
-  const timeout = ref(5000) // tiempo en ms antes de que el mensaje desaparezca
+  const type = ref('error')
+  const timeout = ref(2500)
   const timer = ref(null)
 
-  const showMessage = (msg, msgType = 'error', msgTimeout = 5000) => {
+  const showMessage = (msg, msgType = 'error', msgTimeout = 2500) => {
     clearTimeout(timer.value)
     message.value = msg
     type.value = msgType
