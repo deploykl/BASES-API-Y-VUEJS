@@ -10,7 +10,6 @@
           <i class="fas fa-bars"></i>
         </button>
 
-        <!-- Indicador de conexión -->
         <div class="connection-status" :class="{ 'online': isOnline, 'offline': !isOnline }">
           <i :class="isOnline ? 'fas fa-wifi' : 'fas fa-wifi-slash'"></i>
           <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
@@ -24,7 +23,7 @@
               <div class="avatar-container">
                 <img :src="effectiveUserImage" @error="handleImageError" alt="Profile" class="avatar-img">
               </div>
-              <span class="user-name">{{ userName }} {{ userLastName }}</span>
+              <span class="user-name">{{ fullName }}</span>
               <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
             </a>
 
@@ -34,23 +33,20 @@
                   <img :src="effectiveUserImage" alt="Profile" class="avatar-img" @error="handleImageError">
                 </div>
                 <div class="user-info">
-                  <div class="user-fullname">{{ userName }} {{ userLastName }}</div>
-                  <div class="user-email">{{ userEmail }}</div>
+                  <div class="user-fullname">{{ fullName }}</div>
+                  <div class="user-email">{{ userData.email }}</div>
                 </div>
               </div>
               <div class="dropdown-divider"></div>
-              <a href="#" class="dropdown-item">
-                <i class="fas fa-cog"></i> Settings
-              </a>
-              <a href="#" class="dropdown-item">
-                <i class="fas fa-share-alt"></i> Share
-              </a>
-              <a href="#" class="dropdown-item">
-                <i class="fas fa-key"></i> Change Password
-              </a>
+              <router-link to="/settings" class="dropdown-item">
+                <i class="fas fa-cog"></i> Configuración
+              </router-link>
+              <router-link to="/change-password" class="dropdown-item">
+                <i class="fas fa-key"></i> Cambiar contraseña
+              </router-link>
               <div class="dropdown-divider"></div>
               <a href="#" class="dropdown-item logout-item" @click.prevent="logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
               </a>
             </div>
           </li>
@@ -60,74 +56,48 @@
   </header>
 </template>
 
-
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
 import defaultAvatar from '@/assets/img/header/default-avatar.png';
 
-// Estado de conexión
-const isOnline = ref(navigator.onLine);
-
-// Configurar listeners para cambios de conexión
-const updateOnlineStatus = () => {
-  isOnline.value = navigator.onLine;
-  if (!isOnline.value) {
-    console.warn('La aplicación está funcionando en modo offline');
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-  fetchUserProfile();
-  document.addEventListener('click', handleClickOutside);
-
-  // Verificar conexión inicial
-  checkConnection();
-});
-
-onUnmounted(() => {
-  window.removeEventListener('online', updateOnlineStatus);
-  window.removeEventListener('offline', updateOnlineStatus);
-  document.removeEventListener('click', handleClickOutside);
-});
-
-// Verificación activa de conexión
-const checkConnection = async () => {
-  try {
-    await fetch('https://httpbin.org/get', { method: 'HEAD' });
-    isOnline.value = true;
-  } catch (error) {
-    isOnline.value = false;
-  }
-};
-
-// El resto de tu código existente...
-const userName = ref('');
-const userLastName = ref('');
-const userEmail = ref('');
-const userImage = ref('');
-const imageError = ref(false);
-const router = useRouter();
-const imgServerURL = process.env.VUE_APP_IMG_SERVER;
-const showDropdown = ref(false);
-
-const effectiveUserImage = computed(() => {
-  if (imageError.value || !userImage.value) {
-    return defaultAvatar;
-  }
-  return userImage.value;
-});
-
+// Props
 const props = defineProps({
   isCollapsed: Boolean,
   isMobile: Boolean
 });
 
+// Emits
 const emit = defineEmits(['toggle-sidebar']);
 
+// Router
+const router = useRouter();
+
+// Estado del usuario
+const userData = ref({
+  firstName: '',
+  lastName: '',
+  email: '',
+  image: ''
+});
+
+// Estado de la UI
+const isOnline = ref(navigator.onLine);
+const imageError = ref(false);
+const showDropdown = ref(false);
+const imgServerURL = process.env.VUE_APP_IMG_SERVER;
+
+// Computed properties
+const effectiveUserImage = computed(() => {
+  return imageError.value || !userData.value.image ? defaultAvatar : userData.value.image;
+});
+
+const fullName = computed(() => {
+  return `${userData.value.firstName} ${userData.value.lastName}`.trim();
+});
+
+// Métodos
 const toggleSidebar = () => {
   emit('toggle-sidebar');
 };
@@ -143,73 +113,90 @@ const handleImageError = () => {
 const handleClickOutside = (event) => {
   const dropdown = document.querySelector('.dropdown-menu');
   const profileBtn = document.querySelector('.nav-profile');
-
-  if (dropdown && profileBtn &&
-    !dropdown.contains(event.target) &&
-    !profileBtn.contains(event.target)) {
+  
+  if (dropdown && profileBtn && 
+      !dropdown.contains(event.target) && 
+      !profileBtn.contains(event.target)) {
     showDropdown.value = false;
+  }
+};
+
+const updateOnlineStatus = () => {
+  isOnline.value = navigator.onLine;
+};
+
+const checkConnection = async () => {
+  try {
+    await fetch('https://httpbin.org/get', { method: 'HEAD' });
+    isOnline.value = true;
+  } catch (error) {
+    isOnline.value = false;
   }
 };
 
 const fetchUserProfile = async () => {
   const accessToken = localStorage.getItem('auth_token');
-  if (!accessToken) {
-    userImage.value = defaultAvatar;
-    return;
-  }
+  if (!accessToken) return;
 
   try {
     const response = await api.get('user/profile/', {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-
-    userName.value = response.data.first_name || '';
-    userLastName.value = response.data.last_name || '';
-    userEmail.value = response.data.email || '';
-
-    if (response.data.image) {
-      userImage.value = response.data.image.startsWith('http')
-        ? response.data.image
-        : joinUrl(imgServerURL, response.data.image);
-    } else {
-      userImage.value = defaultAvatar;
-    }
-
+    
+    const { first_name, last_name, email, image } = response.data;
+    
+    userData.value = {
+      firstName: first_name || '',
+      lastName: last_name || '',
+      email: email || '',
+      image: image ? buildImageUrl(image) : defaultAvatar
+    };
+    
     imageError.value = false;
   } catch (error) {
-    console.error('Error al obtener el perfil:', error);
-    userImage.value = defaultAvatar;
+    console.error('Error al obtener perfil:', error);
+    userData.value.image = defaultAvatar;
   }
 };
 
-function joinUrl(base, path) {
-  if (!base || !path) return defaultAvatar;
-
-  const cleanBase = base.replace(/\/+$/, '');
-  const cleanPath = path.replace(/^\/+/, '');
-
-  return `${cleanBase}/${cleanPath}`;
-}
+const buildImageUrl = (imagePath) => {
+  if (!imagePath) return defaultAvatar;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${imgServerURL.replace(/\/+$/, '')}/${imagePath.replace(/^\/+/, '')}`;
+};
 
 const logout = async () => {
-  const refreshToken = localStorage.getItem('refreshToken');
-
-  if (!refreshToken) {
-    console.error('No se encontró el token de refresco.');
-    return;
-  }
-
   try {
-    await api.post('user/logout/', { refresh: refreshToken });
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('user_lastname');
-    router.push('/');
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      await api.post('user/logout/', { refresh: refreshToken });
+    }
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
+  } finally {
+    // Limpiar almacenamiento
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('is_superuser');
+    localStorage.removeItem('is_staff');
+    router.push('/login');
   }
 };
+
+// Lifecycle hooks
+onMounted(() => {
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  document.addEventListener('click', handleClickOutside);
+  fetchUserProfile();
+  checkConnection();
+});
+
+onUnmounted(() => {
+  window.removeEventListener('online', updateOnlineStatus);
+  window.removeEventListener('offline', updateOnlineStatus);
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
@@ -225,6 +212,7 @@ const logout = async () => {
   z-index: 1000;
   border-bottom-right-radius: 15px;
   position: relative;
+  background: white;
 }
 
 .toggle-btn {
@@ -287,7 +275,7 @@ const logout = async () => {
 }
 
 .nav-profile:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .avatar-container {
@@ -295,9 +283,8 @@ const logout = async () => {
   height: 40px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   background-color: #f0f0f0;
-  /* Fondo por si la imagen no carga */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -312,26 +299,7 @@ const logout = async () => {
 .user-name {
   margin-left: 10px;
   font-weight: 500;
-}
-
-/* Logout Button */
-.logout-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  background: rgba(231, 76, 60, 0.8);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #364257;
 }
 
 /* Estilos para el indicador de conexión */
@@ -357,60 +325,6 @@ const logout = async () => {
 
 .status-text {
   font-weight: 500;
-}
-
-/* Ajustes para móvil */
-@media (max-width: 768px) {
-  .status-text {
-    display: none;
-  }
-
-  .connection-status {
-    padding: 0.25rem;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    justify-content: center;
-  }
-}
-
-/* Ajustes para móvil */
-@media (max-width: 768px) {
-  .header {
-    left: 0;
-    padding: 0 0.5rem;
-    width: 100% !important;
-  }
-
-  .mobile-toggle-btn {
-    display: flex;
-  }
-
-  .toggle-btn {
-    display: none;
-  }
-
-  .user-name {
-    font-size: 0.8rem;
-    margin-left: 5px;
-    max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .logout-text {
-    display: none;
-  }
-
-  .logout-btn i {
-    font-size: 1.2rem;
-  }
-
-  .avatar-container {
-    width: 32px;
-    height: 32px;
-  }
 }
 
 /* Dropdown styles */
@@ -509,6 +423,41 @@ const logout = async () => {
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
+  .header {
+    left: 0;
+    padding: 0 0.5rem;
+    width: 100% !important;
+  }
+
+  .mobile-toggle-btn {
+    display: flex;
+  }
+
+  .toggle-btn {
+    display: none;
+  }
+
+  .status-text {
+    display: none;
+  }
+
+  .connection-status {
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+  }
+
+  .user-name {
+    font-size: 0.8rem;
+    margin-left: 5px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .dropdown-menu {
     right: 10px;
     width: 260px;
@@ -520,6 +469,11 @@ const logout = async () => {
 
   .dropdown-arrow {
     display: none;
+  }
+
+  .avatar-container {
+    width: 32px;
+    height: 32px;
   }
 }
 </style>

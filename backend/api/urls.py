@@ -14,5 +14,7 @@ urlpatterns = [
     path('token/blacklist/', TokenBlacklistView.as_view(), name="token_blacklist"),  
     #path('personal/', include('api.personal.urls')),  
     path('', include(router.urls)),
+    path('user/', include('api.user.urls')),  
+
 ]
 

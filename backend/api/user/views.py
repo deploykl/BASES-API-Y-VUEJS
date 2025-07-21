@@ -90,3 +90,16 @@ class LogoutView(APIView):
             return Response({"detail": "Invalid refresh token."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def profile(self, request):
+        # Devuelve solo los detalles del usuario autenticado
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)

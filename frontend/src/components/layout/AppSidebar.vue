@@ -72,6 +72,10 @@ const props = defineProps({
   isCollapsed: {
     type: Boolean,
     default: false
+  },
+  isMobile: {  // Añade esta declaración
+    type: Boolean,
+    default: false
   }
 })
 // Función para alternar el sidebar

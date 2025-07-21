@@ -1,78 +1,78 @@
 <template>
   <div class="background-container">
-  <div class="login-container">
-    <!-- Fondo con imagen y blur -->
-    <div class="background-blur"></div>
-    <div class="login-wrapper">
-      <div class="login-card">
-        <!-- Logo con diseño moderno -->
-        <div class="logo-container">
-          <div class="logo-circle">
-            <img src="@/assets/img/account/user-account.png" alt="Logo" class="logo-img" />
-          </div>
-          <h2 class="welcome-text">Bienvenido a</h2>
-          <h1 class="app-title">CEO SPACE</h1>
-        </div>
-
-        <!-- Mensaje de error mejorado -->
-        <transition name="slide-down">
-          <div v-if="errorMessage" class="error-message">
-            <div class="error-content">
-              <i class="fas fa-exclamation-circle"></i>
-              <span>{{ errorMessage }}</span>
+    <div class="login-container">
+      <!-- Fondo con imagen y blur -->
+      <div class="background-blur"></div>
+      <div class="login-wrapper">
+        <div class="login-card">
+          <!-- Logo con diseño moderno -->
+          <div class="logo-container">
+            <div class="logo-circle">
+              <img src="@/assets/img/account/user-account.png" alt="Logo" class="logo-img" />
             </div>
-          </div>
-        </transition>
-
-        <!-- Formulario con diseño moderno -->
-        <form @submit.prevent="handleSubmit" class="login-form">
-          <!-- Campo Usuario con float label -->
-          <div class="input-group">
-            <div class="input-icon">
-              <i class="fas fa-user"></i>
-            </div>
-            <input type="text" id="username" v-model="username" @input="handleLowerCASE" class="input-field"
-              placeholder=" " required />
-            <label for="username" class="float-label">Nombre de usuario</label>
+            <h2 class="welcome-text">Bienvenido a</h2>
+            <h1 class="app-title">CEO SPACE</h1>
           </div>
 
-          <!-- Campo Contraseña con float label -->
-          <div class="input-group">
-            <div class="input-icon">
-              <i class="fas fa-lock"></i>
+          <!-- Mensaje de error mejorado -->
+          <transition name="slide-down">
+            <div v-if="errorMessage" class="error-message">
+              <div class="error-content">
+                <i class="fas fa-exclamation-circle me-1"></i>
+                <span>{{ errorMessage }}</span>
+              </div>
             </div>
-            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" class="input-field"
-              placeholder=" " required />
-            <label for="password" class="float-label">Contraseña</label>
-            <div class="password-toggle" @click="showPassword = !showPassword">
-              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </transition>
+
+          <!-- Formulario con diseño moderno -->
+          <form @submit.prevent="handleSubmit" class="login-form">
+            <!-- Campo Usuario con float label -->
+            <div class="input-group">
+              <div class="input-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <input type="text" id="username" v-model="username" @input="handleLowerCASE" class="input-field"
+                placeholder=" " required />
+              <label for="username" class="float-label">Nombre de usuario</label>
             </div>
+
+            <!-- Campo Contraseña con float label -->
+            <div class="input-group">
+              <div class="input-icon">
+                <i class="fas fa-lock"></i>
+              </div>
+              <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" class="input-field"
+                placeholder=" " required />
+              <label for="password" class="float-label">Contraseña</label>
+              <div class="password-toggle" @click="showPassword = !showPassword">
+                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </div>
+            </div>
+
+            <!-- Botón con diseño moderno -->
+            <button type="submit" class="login-btn" :disabled="isLoading">
+              <span v-if="isLoading" class="btn-loader"></span>
+              <span v-else>
+                <i class="fas fa-sign-in-alt"></i> Ingresar
+              </span>
+            </button>
+          </form>
+
+          <!-- Enlace olvidé contraseña con diseño minimalista -->
+          <div class="forgot-password">
+            <router-link to="/password-reset" class="forgot-link">
+              ¿Olvidaste tu contraseña?
+            </router-link>
           </div>
 
-          <!-- Botón con diseño moderno -->
-          <button type="submit" class="login-btn" :disabled="isLoading">
-            <span v-if="isLoading" class="btn-loader"></span>
-            <span v-else>
-              <i class="fas fa-sign-in-alt"></i> Ingresar
-            </span>
-          </button>
-        </form>
-
-        <!-- Enlace olvidé contraseña con diseño minimalista -->
-        <div class="forgot-password">
-          <router-link to="/password-reset" class="forgot-link">
-            ¿Olvidaste tu contraseña?
-          </router-link>
-        </div>
-
-        <!-- Footer minimalista -->
-        <div class="login-footer">
-          <span class="version">v1.0.0</span>
-          <span class="copyright">© 2023 OBS Salud</span>
+          <!-- Footer minimalista -->
+          <div class="login-footer">
+            <span class="version">v1.0.0</span>
+            <span class="copyright">© 2023 OBS Salud</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -112,14 +112,14 @@ const handleSubmit = async () => {
       return;
     }
 
+    // Guardar solo lo esencial
     localStorage.setItem('auth_token', access);
     if (refresh) localStorage.setItem('refreshToken', refresh);
     localStorage.setItem('is_superuser', is_superuser ? 'true' : 'false');
     localStorage.setItem('is_staff', is_staff ? 'true' : 'false');
-    //  Obtener perfil del usuario
-    const perfilResponse = await api.get('user/profile/');
-    localStorage.setItem('user', JSON.stringify(perfilResponse.data));
-    router.push('/urls');
+
+    // Redirigir
+    router.push('/');
 
   } catch (error) {
     if (error.response?.data?.detail) {
@@ -134,29 +134,34 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-
 .background-container {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  overflow: hidden; /* Esto recorta el exceso de blur */
+  overflow: hidden;
+  /* Esto recorta el exceso de blur */
 }
 
 .background-container::before {
   content: "";
   position: absolute;
-  top: -20px;       /* Expansión hacia arriba */
-  left: -20px;      /* Expansión hacia la izquierda */
-  right: -20px;     /* Expansión hacia la derecha */
-  bottom: -20px;    /* Expansión hacia abajo */
+  top: -20px;
+  /* Expansión hacia arriba */
+  left: -20px;
+  /* Expansión hacia la izquierda */
+  right: -20px;
+  /* Expansión hacia la derecha */
+  bottom: -20px;
+  /* Expansión hacia abajo */
   background-image: url('@/assets/img/account/background3.jpg');
   background-size: cover;
   background-position: center;
   filter: blur(8px);
   z-index: -1;
 }
+
 /* Estilos base */
 .login-container {
   height: 100vh;
@@ -217,6 +222,7 @@ const handleSubmit = async () => {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -243,10 +249,18 @@ const handleSubmit = async () => {
   border-radius: 8px;
   margin-bottom: 20px;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  justify-content: center;
+  /* Centra horizontalmente */
   font-size: 14px;
   border-left: 4px solid #c62828;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  /* Centra verticalmente los elementos internos */
+  gap: 8px;
+  /* Espacio entre el icono y el texto */
 }
 
 /* Campos de entrada */
@@ -280,7 +294,8 @@ const handleSubmit = async () => {
 .input-field:focus {
   outline: none;
   border-bottom: 2px solid #364257;
-    box-shadow: 0 0 0 2px white; /* Opcional: añade un glow blanco si lo prefieres */
+  box-shadow: 0 0 0 2px white;
+  /* Opcional: añade un glow blanco si lo prefieres */
 }
 
 /* Float label */
@@ -298,8 +313,8 @@ const handleSubmit = async () => {
   z-index: 1;
 }
 
-.input-field:focus ~ .float-label,
-.input-field:not(:placeholder-shown) ~ .float-label {
+.input-field:focus~.float-label,
+.input-field:not(:placeholder-shown)~.float-label {
   transform: translateY(-24px) scale(0.85);
   color: #364257;
   background-color: white;

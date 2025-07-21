@@ -7,7 +7,7 @@ from django.contrib.auth import views as auth_views  # Importa esto
 router = DefaultRouter()
 
 urlpatterns = [  
-    #path('profile/', UserProfileView.as_view(), name='profile'),
+    path('profile/', UserProfileView.as_view(), name='profile'),
     path('login/', LoginView.as_view(), name='login'),  # Esta es la ruta con nombre 'login'
     path('logout/', LogoutView.as_view(), name='logout'),
 

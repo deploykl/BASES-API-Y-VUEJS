@@ -13,9 +13,7 @@ const api = axios.create({
 // Interceptor de solicitudes mejorado
 api.interceptors.request.use(
   config => {
-    // Excluir rutas que no requieren autenticación
-    const publicRoutes = ['user/login/', 'user/register/']; // Agrega otras rutas públicas si es necesario
-    
+    const publicRoutes = ['user/login', 'user/register']; // Elimina las barras al final
     const isPublicRoute = publicRoutes.some(route => config.url.includes(route));
     
     if (!isPublicRoute) {
@@ -23,7 +21,6 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       } else {
-        // Redirigir solo si no es una ruta pública
         router.push('/login');
         return Promise.reject(new Error('Token de autenticación no encontrado'));
       }
