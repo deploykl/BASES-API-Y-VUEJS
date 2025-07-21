@@ -23,7 +23,7 @@
               <div class="avatar-container">
                 <img :src="effectiveUserImage" @error="handleImageError" alt="Profile" class="avatar-img">
               </div>
-              <span class="user-name">{{ fullName }}</span>
+              <span class="user-name">{{ userData.username }}</span>
               <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
             </a>
 
@@ -79,7 +79,8 @@ const userData = ref({
   firstName: '',
   lastName: '',
   email: '',
-  image: ''
+  image: '',
+  username: ''
 });
 
 // Estado de la UI
@@ -143,12 +144,13 @@ const fetchUserProfile = async () => {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     
-    const { first_name, last_name, email, image } = response.data;
+    const { first_name, last_name, email, image, username } = response.data;
     
     userData.value = {
       firstName: first_name || '',
       lastName: last_name || '',
       email: email || '',
+      username: username || '',
       image: image ? buildImageUrl(image) : defaultAvatar
     };
     

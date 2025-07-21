@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '@/components/services/Axios';
 
@@ -87,6 +87,14 @@ const errorMessage = ref('')
 const isLoading = ref(false)
 const showPassword = ref(false)
 const router = useRouter()
+
+// Verificar si ya está autenticado al cargar el componente
+onMounted(() => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    router.push('/');
+  }
+});
 
 const handleLowerCASE = (event) => {
   const targetField = event.target.id;

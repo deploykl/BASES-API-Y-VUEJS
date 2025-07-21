@@ -67,7 +67,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://172.27.0.222:8080",
     "http://localhost:4000",
     "http://127.0.0.1:4000",
-    "http://172.27.0.222:4000",
+    "http://172.27.0.222:9900",
 ]
 
 CORS_ALLOW_METHODS = (

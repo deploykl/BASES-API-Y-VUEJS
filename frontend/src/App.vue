@@ -30,12 +30,12 @@ const isCollapsed = ref(false)
 const isMobile = ref(false)
 
 const shouldShowLayout = computed(() => {
-  const hiddenRoutes = [
-    'not-found',
-    'login',
-  ]
-  return !hiddenRoutes.includes(route.name)
-})
+  const hiddenRoutes = ['not-found', 'login'];
+  const isAuthenticated = localStorage.getItem('auth_token');
+  
+  // No mostrar layout para rutas ocultas o si no está autenticado (excepto login)
+  return !hiddenRoutes.includes(route.name) && (isAuthenticated || route.name === 'login');
+});
 
 const updateCssVariables = () => {
   const width = isCollapsed.value ? '0px' : '250px'
