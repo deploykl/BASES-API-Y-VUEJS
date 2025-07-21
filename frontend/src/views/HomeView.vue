@@ -10,7 +10,7 @@
 
     <div class="row justify-content-center mb-5">
       <div class="col-md-8 col-lg-6">
-        <h3 class="mb-4">Installed CLI Plugins</h3>
+        <h3 class="mb-4">TEMPLATE HOME PAGE</h3>
         <ul class="list-inline">
           <li class="list-inline-item mx-2 mb-2">
             <a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank"

@@ -10,12 +10,29 @@
           <i class="fas fa-bars"></i>
         </button>
 
-        <div class="connection-status" :class="{ 'online': isOnline, 'offline': !isOnline }">
+        <div class="connection-status me-2" :class="{ 'online': isOnline, 'offline': !isOnline }">
           <i :class="isOnline ? 'fas fa-wifi' : 'fas fa-wifi-slash'"></i>
           <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
         </div>
       </div>
-
+      <!-- Indicador de conexión al API -->
+      <div class="connection-status" :class="{
+        'online': isApiConnected === true,
+        'offline': isApiConnected === false,
+        'checking': isApiConnected === null || isCheckingApi
+      }">
+        <i :class="{
+          'fas fa-server': isApiConnected === true,
+          'fas fa-server-slash': isApiConnected === false,
+          'fas fa-circle-notch fa-spin': isApiConnected === null || isCheckingApi
+        }"></i>
+        <span class="status-text">
+          <template v-if="isCheckingApi">Verificando API...</template>
+          <template v-else-if="isApiConnected === true">API Conectado</template>
+          <template v-else-if="isApiConnected === false">API Desconectado</template>
+          <template v-else>Estado API</template>
+        </span>
+      </div>
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
           <li class="nav-item dropdown">
@@ -61,7 +78,9 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
 import defaultAvatar from '@/assets/img/header/default-avatar.png';
+import { useApiConnection } from '@/components/utils/ApiConnection'; // Importa el composable
 
+const { isApiConnected, isLoading: isCheckingApi } = useApiConnection()
 // Props
 const props = defineProps({
   isCollapsed: Boolean,
@@ -114,10 +133,10 @@ const handleImageError = () => {
 const handleClickOutside = (event) => {
   const dropdown = document.querySelector('.dropdown-menu');
   const profileBtn = document.querySelector('.nav-profile');
-  
-  if (dropdown && profileBtn && 
-      !dropdown.contains(event.target) && 
-      !profileBtn.contains(event.target)) {
+
+  if (dropdown && profileBtn &&
+    !dropdown.contains(event.target) &&
+    !profileBtn.contains(event.target)) {
     showDropdown.value = false;
   }
 };
@@ -143,9 +162,9 @@ const fetchUserProfile = async () => {
     const response = await api.get('user/profile/', {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-    
+
     const { first_name, last_name, email, image, username } = response.data;
-    
+
     userData.value = {
       firstName: first_name || '',
       lastName: last_name || '',
@@ -153,7 +172,7 @@ const fetchUserProfile = async () => {
       username: username || '',
       image: image ? buildImageUrl(image) : defaultAvatar
     };
-    
+
     imageError.value = false;
   } catch (error) {
     console.error('Error al obtener perfil:', error);
@@ -476,6 +495,73 @@ onUnmounted(() => {
   .avatar-container {
     width: 32px;
     height: 32px;
+  }
+}
+
+.connection-status {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Internet status */
+.connection-status.online:not(.checking) {
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+  border: 1px solid #28a745;
+}
+
+.connection-status.offline:not(.checking) {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+/* API status */
+.connection-status.checking {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+/* Iconos */
+.connection-status i {
+  font-size: 0.9rem;
+}
+
+.fa-spin {
+  animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .connection-status {
+    padding: 0.25rem;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .connection-status .status-text {
+    display: none;
+  }
+
+  .connection-status i {
+    margin: 0;
   }
 }
 </style>

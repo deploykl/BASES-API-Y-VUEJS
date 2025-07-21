@@ -4,7 +4,7 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import { createPinia } from 'pinia'
-import ErrorMessage from '@/components/Utils/ErrorMessage.vue' // Asegúrate de importar tu componente
+import ErrorMessage from '@/components/utils/ErrorMessage.vue' // Asegúrate de importar tu componente
 
 // LIBRERÍAS
 import 'bootstrap'
