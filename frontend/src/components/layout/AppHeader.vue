@@ -1,31 +1,37 @@
 <template>
   <header id="header" class="header fixed-top">
     <div class="container-fluid d-flex align-items-center justify-content-between">
-    <button v-if="!isMobile" class="toggle-btn" @click="toggleSidebar">
-        <i :class="isCollapsed ? 'fas fa-bars' : 'fas fa-bars'"></i>
-      </button>
+      <div class="d-flex align-items-center gap-3">
+        <button v-if="!isMobile" class="toggle-btn" @click="toggleSidebar">
+          <i :class="isCollapsed ? 'fas fa-bars' : 'fas fa-bars'"></i>
+        </button>
 
-      <!-- Botón de toggle para móvil -->
-      <button v-if="isMobile" class="mobile-toggle-btn" @click="toggleSidebar">
-        <i class="fas fa-bars"></i>
-      </button>
+        <button v-if="isMobile" class="mobile-toggle-btn" @click="toggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Indicador de conexión -->
+        <div class="connection-status" :class="{ 'online': isOnline, 'offline': !isOnline }">
+          <i :class="isOnline ? 'fas fa-wifi' : 'fas fa-wifi-slash'"></i>
+          <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
+        </div>
+      </div>
 
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
           <li class="nav-item dropdown">
             <a class="nav-profile d-flex align-items-center" href="#" @click.prevent="toggleDropdown">
               <div class="avatar-container">
-                <img :src="userImage" alt="Profile" class="avatar-img">
+                <img :src="effectiveUserImage" @error="handleImageError" alt="Profile" class="avatar-img">
               </div>
               <span class="user-name">{{ userName }} {{ userLastName }}</span>
               <i class="fas fa-chevron-down ms-2 dropdown-arrow"></i>
             </a>
 
-            <!-- Menú desplegable -->
             <div v-if="showDropdown" class="dropdown-menu">
               <div class="dropdown-header">
                 <div class="avatar-container-lg">
-                  <img :src="userImage" alt="Profile" class="avatar-img">
+                  <img :src="effectiveUserImage" alt="Profile" class="avatar-img" @error="handleImageError">
                 </div>
                 <div class="user-info">
                   <div class="user-fullname">{{ userName }} {{ userLastName }}</div>
@@ -54,36 +60,86 @@
   </header>
 </template>
 
+
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
+import defaultAvatar from '@/assets/img/header/default-avatar.png';
 
+// Estado de conexión
+const isOnline = ref(navigator.onLine);
+
+// Configurar listeners para cambios de conexión
+const updateOnlineStatus = () => {
+  isOnline.value = navigator.onLine;
+  if (!isOnline.value) {
+    console.warn('La aplicación está funcionando en modo offline');
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  fetchUserProfile();
+  document.addEventListener('click', handleClickOutside);
+
+  // Verificar conexión inicial
+  checkConnection();
+});
+
+onUnmounted(() => {
+  window.removeEventListener('online', updateOnlineStatus);
+  window.removeEventListener('offline', updateOnlineStatus);
+  document.removeEventListener('click', handleClickOutside);
+});
+
+// Verificación activa de conexión
+const checkConnection = async () => {
+  try {
+    await fetch('https://httpbin.org/get', { method: 'HEAD' });
+    isOnline.value = true;
+  } catch (error) {
+    isOnline.value = false;
+  }
+};
+
+// El resto de tu código existente...
 const userName = ref('');
 const userLastName = ref('');
-const userEmail = ref(''); // Asegúrate de tener esto definido
+const userEmail = ref('');
 const userImage = ref('');
+const imageError = ref(false);
 const router = useRouter();
 const imgServerURL = process.env.VUE_APP_IMG_SERVER;
 const showDropdown = ref(false);
 
+const effectiveUserImage = computed(() => {
+  if (imageError.value || !userImage.value) {
+    return defaultAvatar;
+  }
+  return userImage.value;
+});
+
 const props = defineProps({
   isCollapsed: Boolean,
   isMobile: Boolean
-})
+});
 
-const emit = defineEmits(['toggle-sidebar'])
+const emit = defineEmits(['toggle-sidebar']);
 
 const toggleSidebar = () => {
-  emit('toggle-sidebar')
-}
+  emit('toggle-sidebar');
+};
 
-// Función para alternar el dropdown
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
-}
+};
 
-// Cerrar el dropdown al hacer clic fuera
+const handleImageError = () => {
+  imageError.value = true;
+};
+
 const handleClickOutside = (event) => {
   const dropdown = document.querySelector('.dropdown-menu');
   const profileBtn = document.querySelector('.nav-profile');
@@ -97,52 +153,43 @@ const handleClickOutside = (event) => {
 
 const fetchUserProfile = async () => {
   const accessToken = localStorage.getItem('auth_token');
-  if (accessToken) {
-    try {
-      const response = await api.get('user/profile/', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      userName.value = response.data.first_name || '';
-      userLastName.value = response.data.last_name || '';
-      userEmail.value = response.data.email || ''; // Asegúrate de obtener el email
+  if (!accessToken) {
+    userImage.value = defaultAvatar;
+    return;
+  }
 
-      if (response.data.image) {
-        if (response.data.image.startsWith('http')) {
-          userImage.value = response.data.image;
-        } else {
-          userImage.value = joinUrl(imgServerURL, response.data.image);
-        }
-      } else {
-        userImage.value = joinUrl(imgServerURL, 'img/empty.png');
-      }
-    } catch (error) {
-      console.error('Error al obtener el perfil:', error);
-      userImage.value = joinUrl(imgServerURL, 'img/empty.png');
+  try {
+    const response = await api.get('user/profile/', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    userName.value = response.data.first_name || '';
+    userLastName.value = response.data.last_name || '';
+    userEmail.value = response.data.email || '';
+
+    if (response.data.image) {
+      userImage.value = response.data.image.startsWith('http')
+        ? response.data.image
+        : joinUrl(imgServerURL, response.data.image);
+    } else {
+      userImage.value = defaultAvatar;
     }
-  } else {
-    userImage.value = joinUrl(imgServerURL, 'img/empty.png');
+
+    imageError.value = false;
+  } catch (error) {
+    console.error('Error al obtener el perfil:', error);
+    userImage.value = defaultAvatar;
   }
 };
 
 function joinUrl(base, path) {
+  if (!base || !path) return defaultAvatar;
+
   const cleanBase = base.replace(/\/+$/, '');
   const cleanPath = path.replace(/^\/+/, '');
 
-  if (cleanPath.startsWith('media/') || cleanPath.startsWith('/media/')) {
-    return `${cleanBase}/${cleanPath}`;
-  }
-
-  return `${cleanBase}/media/${cleanPath}`;
+  return `${cleanBase}/${cleanPath}`;
 }
-
-onMounted(() => {
-  fetchUserProfile();
-  document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
 
 const logout = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
@@ -153,17 +200,12 @@ const logout = async () => {
   }
 
   try {
-    const response = await api.post('user/logout/', {
-      refresh: refreshToken,
-    });
-
-    if (response.status === 205) {
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_name');
-      localStorage.removeItem('user_lastname');
-      router.push('/');
-    }
+    await api.post('user/logout/', { refresh: refreshToken });
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_lastname');
+    router.push('/');
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
   }
@@ -183,7 +225,6 @@ const logout = async () => {
   z-index: 1000;
   border-bottom-right-radius: 15px;
   position: relative;
-  /* Asegurar que sea fixed */
 }
 
 .toggle-btn {
@@ -255,6 +296,11 @@ const logout = async () => {
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: #f0f0f0;
+  /* Fondo por si la imagen no carga */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-img {
@@ -286,6 +332,46 @@ const logout = async () => {
   background: rgba(231, 76, 60, 0.8);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el indicador de conexión */
+.connection-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.connection-status.online {
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+}
+
+.connection-status.offline {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+.status-text {
+  font-weight: 500;
+}
+
+/* Ajustes para móvil */
+@media (max-width: 768px) {
+  .status-text {
+    display: none;
+  }
+
+  .connection-status {
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+  }
 }
 
 /* Ajustes para móvil */
