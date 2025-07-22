@@ -30,6 +30,10 @@ const props = defineProps({
   isCheckingNetwork: {
     type: Boolean,
     default: false
+  },
+  isCheckingNetwork: {  // Ahora usa esta propiedad específica
+    type: Boolean,
+    default: false
   }
 })
 

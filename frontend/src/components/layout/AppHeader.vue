@@ -13,10 +13,10 @@
       </div>
       <!-- Indicador de conexión al API -->
       <ConnectionManager
-        v-slot="{ isOnline, isApiConnected, isCheckingApi, lastApiCheck, lastNetworkChange, checkApiConnection, checkNetworkConnection }">
+        v-slot="{ isOnline, isApiConnected, isCheckingApi, isCheckingNetwork, lastApiCheck, lastNetworkChange, checkApiConnection, checkNetworkConnection }">
         <div class="connection-indicators">
           <NetworkStatusIndicator :isOnline="isOnline" :isMobile="isMobile" :lastNetworkCheck="lastNetworkChange"
-            :isCheckingNetwork="isCheckingApi" @force-check="checkNetworkConnection" />
+            :isCheckingNetwork="isCheckingNetwork" @force-check="checkNetworkConnection" />
           <ApiStatusIndicator :isApiConnected="isApiConnected" :isCheckingApi="isCheckingApi" :isMobile="isMobile"
             @check-api="checkApiConnection" />
         </div>

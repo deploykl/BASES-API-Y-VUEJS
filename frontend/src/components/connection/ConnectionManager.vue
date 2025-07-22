@@ -5,7 +5,7 @@
       :isApiConnected="isApiConnected"
       :isCheckingApi="isCheckingApi"
       :lastApiCheck="lastApiCheck"
-      :lastNetworkChange="lastNetworkChange"  
+      :lastNetworkChange="lastNetworkChange"
       :checkApiConnection="checkApiConnection"
       :checkNetworkConnection="checkRealNetworkStatus"
     />
