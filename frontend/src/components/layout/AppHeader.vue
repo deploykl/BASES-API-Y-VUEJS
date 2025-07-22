@@ -12,7 +12,15 @@
 
       </div>
       <!-- Indicador de conexión al API -->
-  
+      <ConnectionManager
+        v-slot="{ isOnline, isApiConnected, isCheckingApi, lastApiCheck, lastNetworkChange, checkApiConnection, checkNetworkConnection }">
+        <div class="connection-indicators">
+          <NetworkStatusIndicator :isOnline="isOnline" :isMobile="isMobile" :lastNetworkCheck="lastNetworkChange"
+            :isCheckingNetwork="isCheckingApi" @force-check="checkNetworkConnection" />
+          <ApiStatusIndicator :isApiConnected="isApiConnected" :isCheckingApi="isCheckingApi" :isMobile="isMobile"
+            @check-api="checkApiConnection" />
+        </div>
+      </ConnectionManager>
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
           <li class="nav-item dropdown">

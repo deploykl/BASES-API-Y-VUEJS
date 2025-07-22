@@ -13,8 +13,8 @@ export function useConnection() {
   
   // Configuración
   const checkIntervals = {
-    online: 30000,  // 30 segundos cuando está conectado
-    offline: 5000,  // 5 segundos cuando está desconectado
+    online: 60000,  // 60 segundos cuando está conectado
+    offline: 10000,  // 10 segundos cuando está desconectado
     retry: 1000     // 1 segundo para reintentos
   }
   
