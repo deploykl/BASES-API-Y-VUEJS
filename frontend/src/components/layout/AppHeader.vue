@@ -10,29 +10,9 @@
           <i class="fas fa-bars"></i>
         </button>
 
-        <div class="connection-status me-2" :class="{ 'online': isOnline, 'offline': !isOnline }">
-          <i :class="isOnline ? 'fas fa-wifi' : 'fas fa-wifi-slash'"></i>
-          <span class="status-text">{{ isOnline ? 'Online' : 'Offline' }}</span>
-        </div>
       </div>
       <!-- Indicador de conexión al API -->
-      <div class="connection-status" :class="{
-        'online': isApiConnected === true,
-        'offline': isApiConnected === false,
-        'checking': isApiConnected === null || isCheckingApi
-      }">
-        <i :class="{
-          'fas fa-server': isApiConnected === true,
-          'fas fa-server-slash': isApiConnected === false,
-          'fas fa-circle-notch fa-spin': isApiConnected === null || isCheckingApi
-        }"></i>
-        <span class="status-text">
-          <template v-if="isCheckingApi">Verificando API...</template>
-          <template v-else-if="isApiConnected === true">API Conectado</template>
-          <template v-else-if="isApiConnected === false">API Desconectado</template>
-          <template v-else>Estado API</template>
-        </span>
-      </div>
+  
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center gap-3">
           <li class="nav-item dropdown">
@@ -80,7 +60,10 @@ import { api } from '@/components/services/Axios';
 import defaultAvatar from '@/assets/img/header/default-avatar.png';
 import { useApiConnection } from '@/components/utils/ApiConnection'; // Importa el composable
 
-const { isApiConnected, isLoading: isCheckingApi } = useApiConnection()
+import ConnectionManager from '@/components/connection/ConnectionManager'
+import NetworkStatusIndicator from '@/components/connection/NetworkStatusIndicator'
+import ApiStatusIndicator from '@/components/connection/ApiStatusIndicator'
+
 // Props
 const props = defineProps({
   isCollapsed: Boolean,
@@ -144,7 +127,7 @@ const handleClickOutside = (event) => {
 const updateOnlineStatus = async () => {
   try {
     // Verificación más robusta que solo navigator.onLine
-    const response = await fetch('https://www.google.com', { 
+    const response = await fetch('https://www.google.com', {
       method: 'HEAD',
       cache: 'no-store',
       mode: 'no-cors'
@@ -333,31 +316,6 @@ onUnmounted(() => {
   color: #364257;
 }
 
-/* Estilos para el indicador de conexión */
-.connection-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.connection-status.online {
-  background-color: rgba(40, 167, 69, 0.15);
-  color: #28a745;
-}
-
-.connection-status.offline {
-  background-color: rgba(220, 53, 69, 0.15);
-  color: #dc3545;
-}
-
-.status-text {
-  font-weight: 500;
-}
-
 /* Dropdown styles */
 .dropdown-menu {
   position: absolute;
@@ -508,40 +466,7 @@ onUnmounted(() => {
   }
 }
 
-.connection-status {
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
 
-/* Internet status */
-.connection-status.online:not(.checking) {
-  background-color: rgba(40, 167, 69, 0.15);
-  color: #28a745;
-  border: 1px solid #28a745;
-}
-
-.connection-status.offline:not(.checking) {
-  background-color: rgba(220, 53, 69, 0.15);
-  color: #dc3545;
-  border: 1px solid #dc3545;
-}
-
-/* API status */
-.connection-status.checking {
-  background-color: rgba(255, 193, 7, 0.15);
-  color: #ffc107;
-  border: 1px solid #ffc107;
-}
-
-/* Iconos */
-.connection-status i {
-  font-size: 0.9rem;
-}
 
 .fa-spin {
   animation: fa-spin 2s infinite linear;
@@ -573,5 +498,11 @@ onUnmounted(() => {
   .connection-status i {
     margin: 0;
   }
+}
+
+.connection-indicators {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 </style>

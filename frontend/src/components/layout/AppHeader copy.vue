@@ -78,7 +78,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
 import defaultAvatar from '@/assets/img/header/default-avatar.png';
-import { useApiConnection } from '@/components/utils/useConnection'; // Importa el composable
+import { useApiConnection } from '@/components/utils/ApiConnection'; // Importa el composable
 
 const { isApiConnected, isLoading: isCheckingApi } = useApiConnection()
 // Props
@@ -141,8 +141,18 @@ const handleClickOutside = (event) => {
   }
 };
 
-const updateOnlineStatus = () => {
-  isOnline.value = navigator.onLine;
+const updateOnlineStatus = async () => {
+  try {
+    // Verificación más robusta que solo navigator.onLine
+    const response = await fetch('https://www.google.com', { 
+      method: 'HEAD',
+      cache: 'no-store',
+      mode: 'no-cors'
+    });
+    isOnline.value = true;
+  } catch (error) {
+    isOnline.value = false;
+  }
 };
 
 const checkConnection = async () => {

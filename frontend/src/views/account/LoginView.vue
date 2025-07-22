@@ -318,6 +318,13 @@ const handleSubmit = async () => {
   color: #364257;
 }
 
+.login-btn span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 /* Botón de login */
 .login-btn {
   width: 100%;
@@ -329,7 +336,7 @@ const handleSubmit = async () => {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s, transform 0.2s;
   margin-top: 10px;
   display: flex;
   justify-content: center;
@@ -373,6 +380,22 @@ const handleSubmit = async () => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.btn-loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .version {
