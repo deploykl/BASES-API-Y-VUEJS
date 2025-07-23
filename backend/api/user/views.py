@@ -95,11 +95,34 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = UserProfileSerializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'])
-    def profile(self, request):
-        # Devuelve solo los detalles del usuario autenticado
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
+    def put(self, request):
+        serializer = UserProfileSerializer(
+            request.user, 
+            data=request.data, 
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if not user.check_password(serializer.validated_data['current_password']):
+                return Response(
+                    {"current_password": "Contraseña actual incorrecta"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({"detail": "Contraseña actualizada correctamente"})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

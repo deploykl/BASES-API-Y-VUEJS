@@ -43,6 +43,9 @@
                 </div>
               </div>
               <div class="dropdown-divider"></div>
+              <router-link to="/perfil" class="dropdown-item">
+                <i class="fas fa-cog"></i> Perfil
+              </router-link>
               <router-link to="/settings" class="dropdown-item">
                 <i class="fas fa-cog"></i> Configuración
               </router-link>
@@ -66,7 +69,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { api } from '@/components/services/Axios';
 import defaultAvatar from '@/assets/img/header/default-avatar.png';
-import { useApiConnection } from '@/components/utils/ApiConnection'; // Importa el composable
 
 import ConnectionManager from '@/components/connection/ConnectionManager'
 import NetworkStatusIndicator from '@/components/connection/NetworkStatusIndicator'
