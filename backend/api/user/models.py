@@ -17,6 +17,7 @@ def user_image_path(instance, filename):
 class User(AbstractUser):
     image = models.ImageField(upload_to=user_image_path, default="img/empty.png", null=True, blank=True)
     genero = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Género", null=True, blank=True)
+    celular = models.CharField(max_length=20, null=True, blank=True, verbose_name="Celular", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         """Maneja la imagen por defecto para nuevos usuarios"""

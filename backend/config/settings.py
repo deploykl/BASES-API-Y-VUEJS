@@ -183,12 +183,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Establece el tiempo de inactividad (en segundos) después del cual la sesión debe expirar
 SESSION_COOKIE_AGE = 12 * 60 * 60  # 12 horas
-# SESSION_COOKIE_AGE = 43200  # 12 horas
-
-# Configura la expiración de la sesión
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Para respetar el tiempo de expiración
+SESSION_SAVE_EVERY_REQUEST = True  # Renueva el tiempo de expiración con cada solicitud
 
 LANGUAGE_CODE = "es-pe"
 TIME_ZONE = "America/Lima"
