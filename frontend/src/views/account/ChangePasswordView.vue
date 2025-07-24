@@ -8,18 +8,60 @@
         <form @submit.prevent="changePassword">
           <div class="mb-3">
             <label class="form-label">Contraseña Actual</label>
-            <input type="password" class="form-control" v-model="passwords.current_password" required>
+            <div class="input-group">
+              <input 
+                :type="showCurrentPassword ? 'text' : 'password'" 
+                class="form-control" 
+                v-model="passwords.current_password" 
+                required
+              >
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                @click="showCurrentPassword = !showCurrentPassword"
+              >
+                <i :class="showCurrentPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
           </div>
           
           <div class="mb-3">
             <label class="form-label">Nueva Contraseña</label>
-            <input type="password" class="form-control" v-model="passwords.new_password" required>
+            <div class="input-group">
+              <input 
+                :type="showNewPassword ? 'text' : 'password'" 
+                class="form-control" 
+                v-model="passwords.new_password" 
+                required
+              >
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                @click="showNewPassword = !showNewPassword"
+              >
+                <i :class="showNewPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
             <small class="form-text text-muted">Mínimo 8 caracteres</small>
           </div>
           
           <div class="mb-3">
             <label class="form-label">Confirmar Nueva Contraseña</label>
-            <input type="password" class="form-control" v-model="passwords.confirm_password" required>
+            <div class="input-group">
+              <input 
+                :type="showConfirmPassword ? 'text' : 'password'" 
+                class="form-control" 
+                v-model="passwords.confirm_password" 
+                required
+              >
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <i :class="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+              </button>
+            </div>
           </div>
           
           <div class="d-flex justify-content-between mt-4">
@@ -39,11 +81,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import { api } from '@/components/services/Axios';
+import { api } from '@/components/services/Axios'
+import { toast } from 'vue-sonner'
 
-const store = useStore()
 const router = useRouter()
 
 const passwords = ref({
@@ -53,41 +94,31 @@ const passwords = ref({
 })
 
 const loading = ref(false)
-const error = ref(null)
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const changePassword = async () => {
   if (passwords.value.new_password !== passwords.value.confirm_password) {
-    error.value = 'Las contraseñas no coinciden'
-    store.dispatch('showToast', {
-      message: 'Las contraseñas no coinciden',
-      type: 'error'
-    })
+    toast.error('Las contraseñas no coinciden')
     return
   }
 
   if (passwords.value.new_password.length < 8) {
-    error.value = 'La contraseña debe tener al menos 8 caracteres'
-    store.dispatch('showToast', {
-      message: 'La contraseña debe tener al menos 8 caracteres',
-      type: 'error'
-    })
+    toast.error('La contraseña debe tener al menos 8 caracteres')
     return
   }
 
   loading.value = true
-  error.value = null
 
   try {
-    await api.post('user/change-password/', {
+    const response = await api.post('user/change-password/', {
       current_password: passwords.value.current_password,
       new_password: passwords.value.new_password,
       confirm_password: passwords.value.confirm_password
     })
 
-    store.dispatch('showToast', {
-      message: 'Contraseña cambiada exitosamente',
-      type: 'success'
-    })
+    toast.success('Contraseña cambiada exitosamente')
     
     // Limpiar formulario
     passwords.value = {
@@ -101,11 +132,16 @@ const changePassword = async () => {
     
   } catch (err) {
     console.error('Error al cambiar contraseña:', err)
-    error.value = err.response?.data?.detail || 'Error al cambiar la contraseña'
-    store.dispatch('showToast', {
-      message: error.value,
-      type: 'error'
-    })
+    
+    if (err.response?.data?.current_password) {
+      toast.error(err.response.data.current_password[0])
+    } else if (err.response?.data?.confirm_password) {
+      toast.error(err.response.data.confirm_password[0])
+    } else if (err.response?.data?.detail) {
+      toast.error(err.response.data.detail)
+    } else {
+      toast.error('Error al cambiar la contraseña')
+    }
   } finally {
     loading.value = false
   }
@@ -125,7 +161,9 @@ const changePassword = async () => {
 }
 
 .card-header {
-  background-color: #f8f9fa;
+  text-align: center;
+  background-color: #364257;
+  color:white;
   border-bottom: 1px solid #eee;
   padding: 1.5rem;
   border-radius: 10px 10px 0 0 !important;
@@ -140,9 +178,7 @@ const changePassword = async () => {
   margin-bottom: 0.5rem;
 }
 
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+.input-group button {
+  border-radius: 0 0.375rem 0.375rem 0;
 }
 </style>

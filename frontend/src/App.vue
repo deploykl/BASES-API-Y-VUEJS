@@ -16,6 +16,8 @@
       <router-view />
     </template>
   </div>
+      <SonnerNotifications />
+
 </template>
 
 <script setup>
@@ -24,6 +26,7 @@ import { useRoute } from 'vue-router'
 import AppHeader from './components/layout/AppHeader.vue'
 import AppFooter from './components/layout/AppFooter.vue'
 import AppSidebar from './components/layout/AppSidebar.vue'
+import SonnerNotifications from '@/components/utils/SonnerNotifications.vue'
 
 const route = useRoute()
 const isCollapsed = ref(false)

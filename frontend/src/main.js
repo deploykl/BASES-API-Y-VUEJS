@@ -4,7 +4,8 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import { createPinia } from 'pinia'
-import ErrorMessage from '@/components/utils/ErrorMessage.vue' // Asegúrate de importar tu componente
+import ErrorMessage from '@/components/utils/ErrorMessage.vue'
+import SonnerNotifications from '@/components/utils/SonnerNotifications.vue'
 
 // LIBRERÍAS
 import 'bootstrap'
@@ -12,6 +13,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
+import 'vue-sonner/style.css' // Asegúrate de importar los estilos
 
 import '@/assets/lib/fontawesome-v6.5.2/css/all.css'
 import '@/assets/lib/fontawesome-v6.5.2/css/sharp-light.css'
@@ -33,6 +35,7 @@ app.use(pinia)
 
 // Registra componentes globales
 app.component('ErrorMessage', ErrorMessage)
+app.component('SonnerNotifications', SonnerNotifications)
 
 // Monta la aplicación
 app.mount('#app')
