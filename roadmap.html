@@ -3,248 +3,463 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plantilla Elegante con Bootstrap</title>
+    <title>Roadmap del Proyecto</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .roadmap-header {
+            background: linear-gradient(135deg, var(--primary-color), #224abe);
             color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
         }
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #667eea;
+        
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--primary-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 10px;
+        }
+        
+        .phase {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+        
+        .phase::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -17px;
+            background-color: white;
+            border: 4px solid var(--primary-color);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .left {
+            left: 0;
+        }
+        
+        .right {
+            left: 50%;
+        }
+        
+        .left::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            right: 30px;
+            border: medium solid white;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent white;
+        }
+        
+        .right::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            left: 30px;
+            border: medium solid white;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent white transparent transparent;
+        }
+        
+        .right::after {
+            left: -16px;
+        }
+        
+        .phase-content {
+            padding: 20px 30px;
+            background-color: white;
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
             transition: all 0.3s ease;
         }
+        
+        .phase-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+        
+        .phase-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .phase-date {
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .phase-date i {
+            margin-right: 8px;
+        }
+        
+        .module-badge {
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .current-phase .phase-content {
+            border-left: 5px solid var(--success-color);
+        }
+        
+        .current-phase .phase-title {
+            color: var(--success-color);
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+        }
+        
+        .filter-container {
+            margin-bottom: 30px;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .phase {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .phase::before {
+                left: 60px;
+                border: medium solid white;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent white transparent transparent;
+            }
+            
+            .left::after, .right::after {
+                left: 15px;
+            }
+            
+            .right {
+                left: 0%;
+            }
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .phase {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .phase:nth-child(1) { animation-delay: 0.1s; }
+        .phase:nth-child(2) { animation-delay: 0.3s; }
+        .phase:nth-child(3) { animation-delay: 0.5s; }
+        .phase:nth-child(4) { animation-delay: 0.7s; }
+        .phase:nth-child(5) { animation-delay: 0.9s; }
     </style>
 </head>
 <body>
-    <!-- Navbar elegante -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="bi bi-stars me-2"></i>Elegance
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Servicios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Portafolio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contacto</a>
-                    </li>
-                </ul>
-                <button class="btn btn-outline-light ms-lg-3">Login</button>
-            </div>
+    <div class="container py-5">
+        <div class="roadmap-header p-4 text-center">
+            <h1><i class="fas fa-map-marked-alt me-2"></i>Roadmap del Proyecto</h1>
+            <p class="lead mb-0">Planificación y módulos a implementar</p>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero-section py-5">
-        <div class="container py-5">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">Diseño Moderno y Elegante</h1>
-                    <p class="lead mb-4">Creamos experiencias digitales que cautivan a tus clientes y elevan tu marca.</p>
-                    <div class="d-flex gap-3">
-                        <button class="btn btn-light btn-lg px-4">Conócenos</button>
-                        <button class="btn btn-outline-light btn-lg px-4">
-                            <i class="bi bi-play-circle me-2"></i>Ver video
-                        </button>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Resumen del Proyecto</h5>
+                        <p class="card-text">Este proyecto tiene como objetivo desarrollar una plataforma integral con múltiples módulos que se implementarán en fases sucesivas.</p>
+                        <div class="progress-container">
+                            <label>Progreso general del proyecto:</label>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">30%</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-6 d-none d-lg-block">
-                    <img src="https://via.placeholder.com/600x400" alt="Hero image" class="img-fluid rounded-3 shadow">
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-filter me-2"></i>Filtrar Módulos</h5>
+                        <div class="filter-container">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">Todos</button>
+                                <button type="button" class="btn btn-outline-success filter-btn" data-filter="backend">Backend</button>
+                                <button type="button" class="btn btn-outline-info filter-btn" data-filter="frontend">Frontend</button>
+                                <button type="button" class="btn btn-outline-warning filter-btn" data-filter="database">Base de Datos</button>
+                                <button type="button" class="btn btn-outline-danger filter-btn" data-filter="security">Seguridad</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-5">
-        <div class="container py-5">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold">Nuestros Servicios</h2>
-                <p class="text-muted lead">Soluciones diseñadas para tus necesidades</p>
+        
+        <div class="timeline">
+            <!-- Fase 1 -->
+            <div class="phase left current-phase" data-phase="1">
+                <div class="phase-content">
+                    <div class="phase-date"><i class="far fa-calendar-alt"></i> Enero - Marzo 2023</div>
+                    <h3 class="phase-title">Fase 1: Inicio y Configuración</h3>
+                    <p>Configuración inicial del proyecto, infraestructura básica y módulos fundamentales.</p>
+                    <div>
+                        <span class="badge bg-primary module-badge" data-type="backend">API Core</span>
+                        <span class="badge bg-success module-badge" data-type="database">Modelo de Datos</span>
+                        <span class="badge bg-info module-badge" data-type="frontend">Landing Page</span>
+                        <span class="badge bg-warning module-badge" data-type="security">Auth Básico</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-secondary">En progreso</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm card-hover">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon">
-                                <i class="bi bi-laptop"></i>
-                            </div>
-                            <h4 class="card-title">Diseño Web</h4>
-                            <p class="card-text text-muted">Creación de sitios web responsivos y modernos que se adaptan a todos los dispositivos.</p>
-                            <a href="#" class="btn btn-link text-decoration-none">Saber más →</a>
-                        </div>
+            <!-- Fase 2 -->
+            <div class="phase right" data-phase="2">
+                <div class="phase-content">
+                    <div class="phase-date"><i class="far fa-calendar-alt"></i> Abril - Junio 2023</div>
+                    <h3 class="phase-title">Fase 2: Desarrollo Base</h3>
+                    <p>Implementación de funcionalidades centrales y primeros módulos de usuario.</p>
+                    <div>
+                        <span class="badge bg-primary module-badge" data-type="backend">Servicios Core</span>
+                        <span class="badge bg-success module-badge" data-type="database">Migraciones</span>
+                        <span class="badge bg-info module-badge" data-type="frontend">Dashboard</span>
+                        <span class="badge bg-danger module-badge" data-type="security">Roles y Permisos</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-light text-dark">Próximamente</span>
                     </div>
                 </div>
-                
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm card-hover">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon">
-                                <i class="bi bi-phone"></i>
-                            </div>
-                            <h4 class="card-title">Apps Móviles</h4>
-                            <p class="card-text text-muted">Desarrollo de aplicaciones nativas e híbridas para iOS y Android.</p>
-                            <a href="#" class="btn btn-link text-decoration-none">Saber más →</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm card-hover">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon">
-                                <i class="bi bi-graph-up"></i>
-                            </div>
-                            <h4 class="card-title">Marketing Digital</h4>
-                            <p class="card-text text-muted">Estrategias digitales para aumentar tu presencia en línea y generar leads.</p>
-                            <a href="#" class="btn btn-link text-decoration-none">Saber más →</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials -->
-    <section class="bg-light py-5">
-        <div class="container py-5">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold">Lo que dicen nuestros clientes</h2>
             </div>
             
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body p-4 text-center">
-                                        <img src="https://via.placeholder.com/100" class="rounded-circle mb-3" alt="Client" width="80">
-                                        <p class="lead fst-italic mb-4">"Increíble trabajo y atención al detalle. Transformaron completamente nuestra presencia digital."</p>
-                                        <h5 class="mb-1">María González</h5>
-                                        <p class="text-muted">CEO, TechSolutions</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="carousel-item">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body p-4 text-center">
-                                        <img src="https://via.placeholder.com/100" class="rounded-circle mb-3" alt="Client" width="80">
-                                        <p class="lead fst-italic mb-4">"Profesionales altamente capacitados que entendieron exactamente lo que necesitábamos."</p>
-                                        <h5 class="mb-1">Carlos Mendoza</h5>
-                                        <p class="text-muted">Director de Marketing</p>
-                                    </div>
-                                </div>
-                            </div>
+            <!-- Fase 3 -->
+            <div class="phase left" data-phase="3">
+                <div class="phase-content">
+                    <div class="phase-date"><i class="far fa-calendar-alt"></i> Julio - Septiembre 2023</div>
+                    <h3 class="phase-title">Fase 3: Funcionalidades Avanzadas</h3>
+                    <p>Desarrollo de módulos especializados y optimización del sistema.</p>
+                    <div>
+                        <span class="badge bg-primary module-badge" data-type="backend">Microservicios</span>
+                        <span class="badge bg-info module-badge" data-type="frontend">Componentes Avanzados</span>
+                        <span class="badge bg-warning module-badge" data-type="database">Replicación</span>
+                        <span class="badge bg-dark module-badge" data-type="security">Auditoría</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-light text-dark">Próximamente</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fase 4 -->
+            <div class="phase right" data-phase="4">
+                <div class="phase-content">
+                    <div class="phase-date"><i class="far fa-calendar-alt"></i> Octubre - Diciembre 2023</div>
+                    <h3 class="phase-title">Fase 4: Integración y Pruebas</h3>
+                    <p>Integración de todos los módulos, pruebas exhaustivas y preparación para lanzamiento.</p>
+                    <div>
+                        <span class="badge bg-primary module-badge" data-type="backend">API Gateway</span>
+                        <span class="badge bg-success module-badge" data-type="database">Optimización</span>
+                        <span class="badge bg-info module-badge" data-type="frontend">UI/UX Final</span>
+                        <span class="badge bg-danger module-badge" data-type="security">Pentesting</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-light text-dark">Próximamente</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fase 5 -->
+            <div class="phase left" data-phase="5">
+                <div class="phase-content">
+                    <div class="phase-date"><i class="far fa-calendar-alt"></i> Enero 2024</div>
+                    <h3 class="phase-title">Fase 5: Lanzamiento y Mantenimiento</h3>
+                    <p>Lanzamiento oficial y ciclo de mantenimiento inicial.</p>
+                    <div>
+                        <span class="badge bg-primary module-badge" data-type="backend">Monitorización</span>
+                        <span class="badge bg-info module-badge" data-type="frontend">Feedback UI</span>
+                        <span class="badge bg-dark module-badge" data-type="security">Parches</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-light text-dark">Próximamente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tasks me-2"></i>Detalle de Módulos</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Módulo</th>
+                                        <th>Tipo</th>
+                                        <th>Fase</th>
+                                        <th>Estado</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-type="backend">
+                                        <td>API Core</td>
+                                        <td><span class="badge bg-primary">Backend</span></td>
+                                        <td>1</td>
+                                        <td><span class="badge bg-success">Completado</span></td>
+                                        <td>API principal del sistema</td>
+                                    </tr>
+                                    <tr data-type="database">
+                                        <td>Modelo de Datos</td>
+                                        <td><span class="badge bg-success">Base de Datos</span></td>
+                                        <td>1</td>
+                                        <td><span class="badge bg-warning">En progreso</span></td>
+                                        <td>Diseño e implementación inicial de la base de datos</td>
+                                    </tr>
+                                    <tr data-type="frontend">
+                                        <td>Landing Page</td>
+                                        <td><span class="badge bg-info">Frontend</span></td>
+                                        <td>1</td>
+                                        <td><span class="badge bg-success">Completado</span></td>
+                                        <td>Página de presentación del producto</td>
+                                    </tr>
+                                    <tr data-type="security">
+                                        <td>Auth Básico</td>
+                                        <td><span class="badge bg-danger">Seguridad</span></td>
+                                        <td>1</td>
+                                        <td><span class="badge bg-success">Completado</span></td>
+                                        <td>Sistema básico de autenticación</td>
+                                    </tr>
+                                    <tr data-type="backend">
+                                        <td>Servicios Core</td>
+                                        <td><span class="badge bg-primary">Backend</span></td>
+                                        <td>2</td>
+                                        <td><span class="badge bg-secondary">Pendiente</span></td>
+                                        <td>Servicios principales de negocio</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Contact Form -->
-    <section class="py-5">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="card border-0 shadow">
-                        <div class="card-body p-4 p-md-5">
-                            <h2 class="text-center mb-4">Contáctanos</h2>
-                            <form>
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="name" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="message" class="form-label">Mensaje</label>
-                                    <textarea class="form-control" id="message" rows="4" required></textarea>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary btn-lg">Enviar Mensaje</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4 mb-md-0">
-                    <h5 class="mb-3">Elegance</h5>
-                    <p class="text-muted">Creando experiencias digitales excepcionales desde 2023.</p>
-                </div>
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h5 class="mb-3">Enlaces</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Inicio</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Servicios</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">Portafolio</a></li>
-                        <li><a href="#" class="text-decoration-none text-muted">Contacto</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-4 mb-md-0">
-                    <h5 class="mb-3">Contacto</h5>
-                    <p class="text-muted mb-2"><i class="bi bi-envelope me-2"></i>info@elegance.com</p>
-                    <p class="text-muted mb-2"><i class="bi bi-phone me-2"></i>+1 234 567 890</p>
-                    <p class="text-muted"><i class="bi bi-geo-alt me-2"></i>Ciudad, País</p>
-                </div>
-                <div class="col-md-2">
-                    <h5 class="mb-3">Síguenos</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-white"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4 bg-secondary">
-            <div class="text-center text-muted">
-                <p class="mb-0">© 2023 Elegance. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS y dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filtrado de módulos
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const moduleBadges = document.querySelectorAll('.module-badge');
+            const moduleRows = document.querySelectorAll('tbody tr');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Quitar active de todos los botones
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Añadir active al botón clickeado
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Filtrar badges en el timeline
+                    moduleBadges.forEach(badge => {
+                        if (filter === 'all' || badge.getAttribute('data-type') === filter) {
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    });
+                    
+                    // Filtrar filas en la tabla
+                    moduleRows.forEach(row => {
+                        if (filter === 'all' || row.getAttribute('data-type') === filter) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Mostrar detalles al hacer clic en una fase
+            const phases = document.querySelectorAll('.phase');
+            phases.forEach(phase => {
+                phase.addEventListener('click', function() {
+                    const phaseNumber = this.getAttribute('data-phase');
+                    alert(`Mostrar detalles de la Fase ${phaseNumber}`);
+                    // Aquí podrías implementar un modal con más detalles
+                });
+            });
+            
+            // Animación de progreso
+            const progressBar = document.querySelector('.progress-bar');
+            let width = 0;
+            const targetWidth = parseInt(progressBar.getAttribute('aria-valuenow'));
+            const interval = setInterval(() => {
+                if (width >= targetWidth) {
+                    clearInterval(interval);
+                } else {
+                    width++;
+                    progressBar.style.width = width + '%';
+                    progressBar.textContent = width + '%';
+                }
+            }, 30);
+        });
+    </script>
 </body>
 </html>

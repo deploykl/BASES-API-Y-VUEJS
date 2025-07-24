@@ -85,7 +85,7 @@
               <router-link to="/settings" class="dropdown-item">
                 <i class="fas fa-cog"></i> Configuración
               </router-link>
-              
+
               <div class="dropdown-divider"></div>
 
               <a href="#" class="dropdown-item logout-item" @click.prevent="logout">
@@ -186,7 +186,7 @@ const logout = async () => {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('is_superuser');
     localStorage.removeItem('is_staff');
-    router.push('/login');
+    router.push('/');
   }
 };
 
