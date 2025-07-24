@@ -2,13 +2,16 @@ from django.db import models, IntegrityError
 from django.contrib.auth.models import AbstractUser
 from django.core.files.storage import default_storage
 from api.Choises import GENDER_CHOICES
+import uuid
+import os
+from django.utils.text import slugify
 
 
 def user_image_path(instance, filename):
-    """Ruta dinámica para imágenes de perfil"""
-    if filename in ["empty.png", "empty-male.png", "empty-female.png"]:
-        return f"img/{filename}"
-    return f"users/{instance.id}/{filename}"
+    ext = os.path.splitext(filename)[1].lower()
+    safe_username = slugify(instance.username)
+    new_filename = f"{safe_username}-{uuid.uuid4().hex[:8]}{ext}"  # Combina username y parte del UUID
+    return f"users/{instance.id}/{new_filename}"
 
 
 class User(AbstractUser):

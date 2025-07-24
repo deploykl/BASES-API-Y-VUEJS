@@ -78,14 +78,14 @@
                 <i class="fas fa-cog"></i> Perfil
               </router-link>
 
-              <router-link to="/settings" class="dropdown-item">
-                <i class="fas fa-cog"></i> Configuración
-              </router-link>
-
               <router-link to="/change-password" class="dropdown-item">
                 <i class="fas fa-key"></i> Cambiar contraseña
               </router-link>
 
+              <router-link to="/settings" class="dropdown-item">
+                <i class="fas fa-cog"></i> Configuración
+              </router-link>
+              
               <div class="dropdown-divider"></div>
 
               <a href="#" class="dropdown-item logout-item" @click.prevent="logout">

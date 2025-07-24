@@ -101,7 +101,7 @@ const menuItems = ref([
   {
     title: 'Dashboard',
     icon: 'fa-tachometer-alt',
-    path: '/urls',
+    path: '/dashboard',
     submenu: null
   },
   {

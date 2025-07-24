@@ -33,11 +33,18 @@ const isCollapsed = ref(false)
 const isMobile = ref(false)
 
 const shouldShowLayout = computed(() => {
-  const hiddenRoutes = ['not-found', 'login'];
   const isAuthenticated = localStorage.getItem('auth_token');
   
-  // No mostrar layout para rutas ocultas o si no está autenticado (excepto login)
-  return !hiddenRoutes.includes(route.name) && (isAuthenticated || route.name === 'login');
+  // Si la ruta especifica hideLayout, no mostrar el layout completo
+  if (route.meta.hideLayout) {
+    return false;
+  }
+  
+  // Mostrar layout completo si:
+  // 1. La ruta requiere autenticación Y el usuario está autenticado
+  // 2. O si es una ruta que no es pública (por defecto mostramos layout)
+  return (route.meta.requiresAuth && isAuthenticated) || 
+         (!route.meta.public && isAuthenticated);
 });
 
 const updateCssVariables = () => {

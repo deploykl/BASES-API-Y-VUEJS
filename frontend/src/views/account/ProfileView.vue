@@ -162,33 +162,50 @@ const closeImageModal = () => {
   document.body.style.overflow = 'auto'
 }
 
-const handleImageChange = (event) => {
-  const file = event.target.files[0]
-  if (!file) return
+const handleImageChange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
 
-  event.target.value = ''
+  event.target.value = '';
 
+  // Verificar tipo y tamaño
   if (!file.type.match('image.*')) {
-    toast.error('Por favor selecciona un archivo de imagen válido')
-    return
+    toast.error('Por favor selecciona un archivo de imagen válido');
+    return;
   }
 
-  if (file.size > 2 * 1024 * 1024) {
-    toast.error('La imagen no debe exceder los 2MB')
-    return
+  // Comprimir imagen si es mayor a 1MB
+  if (file.size > 1024 * 1024) {
+    try {
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      });
+      
+      selectedImage.value = compressedFile;
+      userStore.setImageError(false);
+      
+      // Vista previa
+      const reader = new FileReader();
+      reader.onload = (e) => imagePreview.value = e.target.result;
+      reader.readAsDataURL(compressedFile);
+      
+    } catch (error) {
+      console.error('Error al comprimir:', error);
+      toast.error('Error al procesar la imagen');
+    }
+  } else {
+    // Usar imagen original si es pequeña
+    selectedImage.value = file;
+    userStore.setImageError(false);
+    
+    // Vista previa
+    const reader = new FileReader();
+    reader.onload = (e) => imagePreview.value = e.target.result;
+    reader.readAsDataURL(file);
   }
-
-  selectedImage.value = file
-  userStore.setImageError(false)
-
-  const reader = new FileReader()
-  reader.onload = (e) => imagePreview.value = e.target.result
-  reader.onerror = () => {
-    userStore.setImageError(true)
-    toast.error('Error al procesar la imagen')
-  }
-  reader.readAsDataURL(file)
-}
+};
 
 const updateProfile = async () => {
   const success = await userStore.updateUserProfile(selectedImage.value)

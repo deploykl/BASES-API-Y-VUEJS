@@ -16,7 +16,6 @@
 
           <!-- Mensaje de error mejorado -->
           <ErrorMessage />
-
           <!-- Formulario con diseño moderno -->
           <form @submit.prevent="handleSubmit" class="login-form">
             <!-- Campo Usuario con float label -->
@@ -82,14 +81,6 @@ const showPassword = ref(false)
 const router = useRouter()
 const errorStore = useErrorStore() // Usa el store
 
-// Verificar si ya está autenticado al cargar el componente
-onMounted(() => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    router.push('/');
-  }
-});
-
 const handleLowerCASE = (event) => {
   const targetField = event.target.id;
   if (targetField === 'username') {
@@ -121,7 +112,7 @@ const handleSubmit = async () => {
     localStorage.setItem('is_staff', is_staff ? 'true' : 'false');
 
     // Redirigir
-    router.push('/');
+    router.push('/dashboard');
 
   } catch (error) {
     if (error.response?.data?.detail) {

@@ -18,7 +18,7 @@ const AdminAuth = [
     component: ProfileView,
     meta: {
       title: "Perfil",
-      requiresUnauth: true,
+      requiresAuth: true,
     },
   },
    {
@@ -27,7 +27,7 @@ const AdminAuth = [
     component: ChangePasswordView,
     meta: {
       title: "Cambiar Contraseña",
-      requiresUnauth: true,
+      requiresAuth: true,
     },
   },
 ];

@@ -18,29 +18,22 @@ export const useUserStore = defineStore("user", () => {
 
   const effectiveUserImage = computed(() => {
     if (imageError.value || !userData.value.image) return defaultAvatar;
-
-    // Si es una imagen en base64 (vista previa), devolver directamente
-    if (userData.value.image.startsWith("data:")) {
-      return userData.value.image;
-    }
-
-    // Añadir parámetro de caché único para imágenes remotas
+    if (userData.value.image.startsWith("data:")) return userData.value.image;
+    
     const cacheBuster = `?t=${Date.now()}`;
-
+    
     if (userData.value.image.startsWith("http")) {
       return `${userData.value.image}${cacheBuster}`;
     }
-
+    
     if (!userData.value.image.startsWith("/media/")) {
       return `${process.env.VUE_APP_IMG_SERVER}media/${userData.value.image}${cacheBuster}`;
     }
-
+    
     return `${process.env.VUE_APP_IMG_SERVER}${userData.value.image.replace(/^\/+/, "")}${cacheBuster}`;
   });
   
-  const fullName = computed(() =>
-    `${userData.value.first_name} ${userData.value.last_name}`.trim()
-  );
+  const fullName = computed(() => `${userData.value.first_name} ${userData.value.last_name}`.trim());
 
   async function fetchUserProfile() {
     const accessToken = localStorage.getItem("auth_token");
@@ -68,7 +61,6 @@ export const useUserStore = defineStore("user", () => {
     userData.value = {
       ...userData.value,
       ...newData,
-      // Solo añadir timestamp si no es una imagen en base64
       image: newData.image 
         ? newData.image.startsWith("data:") 
           ? newData.image 
@@ -95,29 +87,37 @@ export const useUserStore = defineStore("user", () => {
         formData.append('image', selectedImage);
       }
 
-      const response = await api.put('user/profile/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      // Usando toast.promise directamente
+      const response = await toast.promise(
+        api.put('user/profile/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          }
+        }),
+        {
+          loading: 'Actualizando perfil...',
+          success: (data) => {
+            this.updateUserData({
+              ...data.data,
+              image: data.data.image ? `${data.data.image}?t=${Date.now()}` : ''
+            });
+            this.fetchUserProfile();
+            return 'Perfil actualizado correctamente';
+          },
+          error: (error) => {
+            const errorData = error.response?.data || {};
+            return errorData.username || 
+                   errorData.email || 
+                   errorData.detail || 
+                   'Error al actualizar el perfil';
+          }
         }
-      });
+      );
 
-      this.updateUserData({
-        ...response.data,
-        image: response.data.image ? `${response.data.image}?t=${Date.now()}` : ''
-      });
-
-      await this.fetchUserProfile();
-      toast.success('Perfil actualizado correctamente');
       return true;
     } catch (error) {
-      console.error('Error al actualizar perfil:', error);
-      const errorData = error.response?.data || {};
-      const errorMessage = errorData.username 
-        || errorData.email 
-        || errorData.detail 
-        || 'Error al actualizar el perfil';
-      toast.error(errorMessage);
+      console.error('Error en updateProfile:', error);
       return false;
     } finally {
       loading.value = false;
