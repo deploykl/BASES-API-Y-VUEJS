@@ -2,43 +2,70 @@ from .models import *
 from rest_framework import serializers
 from django.conf import settings
 
-# Create your views here.
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
 
+# Create your views here.
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class UserSerializer(serializers.ModelSerializer):
+    created_by = serializers.StringRelatedField(read_only=True)
+    updated_by = serializers.StringRelatedField(read_only=True)
+    
     class Meta:
         model = User
-        fields = "__all__",
+        fields = [
+            'id', 'username', 'email', 'password', 
+            'first_name', 'last_name', 'dni', 'celular',
+            'is_active', 'is_staff', 'is_superuser',
+            'date_joined', 'last_login', 'image',
+            'created_by', 'updated_by'
+        ]
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'date_joined': {'read_only': True},
+            'last_login': {'read_only': True},
+        }
 
     def validate(self, data):
-        if data["password"] != data["password2"]:
-            raise serializers.ValidationError(
-                {"password2": "Las contraseñas no coinciden"}
-            )
+        if self.instance and 'username' in data and User.objects.filter(username=data['username']).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError({"username": "Este nombre de usuario ya está en uso"})
 
-        if User.objects.filter(username=data["username"]).exists():
-            raise serializers.ValidationError(
-                {"username": "Este nombre de usuario ya está en uso"}
-            )
-
-        if User.objects.filter(email=data["email"]).exists():
-            raise serializers.ValidationError(
-                {"email": "Este correo electrónico ya está en uso"}
-            )
+        if self.instance and 'email' in data and User.objects.filter(email=data['email']).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError({"email": "Este correo electrónico ya está en uso"})
 
         return data
 
     def create(self, validated_data):
-        validated_data.pop(
-            "password2"
-        )  # Eliminar la confirmación de contraseña antes de crear el usuario
         user = User.objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            dni=validated_data.get('dni'),
+            celular=validated_data.get('celular'),
+            is_active=validated_data.get('is_active', True),
+            is_staff=validated_data.get('is_staff', False),
+            is_superuser=validated_data.get('is_superuser', False),
         )
+        user.created_by = self.context['request'].user
+        user.save()
         return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        instance.updated_by = self.context['request'].user
+        instance.save()
+        return instance
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

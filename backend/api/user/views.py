@@ -4,11 +4,12 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from api.user.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
-from rest_framework import viewsets
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
 
 User = get_user_model()
 
@@ -120,11 +121,32 @@ class ChangePasswordView(APIView):
             return Response({"detail": "Contraseña actualizada correctamente"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class EventoViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['estado']  # Permite filtrar por estado
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['is_active', 'is_staff', 'is_superuser']
+    search_fields = ['username', 'email', 'first_name', 'last_name', 'dni']
     ordering_fields = '__all__'
-    ordering = ['-fecha', '-hora_inicio']
+    ordering = ['-date_joined']
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        user = self.get_object()
+        user.is_active = True
+        user.save()
+        return Response({'status': 'user activated'})
+
+    @action(detail=True, methods=['post'])
+    def deactivate(self, request, pk=None):
+        user = self.get_object()
+        user.is_active = False
+        user.save()
+        return Response({'status': 'user deactivated'})

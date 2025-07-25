@@ -1,5 +1,6 @@
 import LoginView from "../views/account/LoginView.vue";
 import ProfileView from "../views/account/ProfileView.vue";
+import UserView from "../views/account/UserView.vue";
 import ChangePasswordView from "../views/account/ChangePasswordView.vue";
 
 const AdminAuth = [
@@ -18,6 +19,15 @@ const AdminAuth = [
     component: ProfileView,
     meta: {
       title: "Perfil",
+      requiresAuth: true,
+    },
+  },
+   {
+    path: "/user/create",
+    name: "user-create",
+    component: UserView,
+    meta: {
+      title: "Create User",
       requiresAuth: true,
     },
   },

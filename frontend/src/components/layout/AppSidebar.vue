@@ -104,6 +104,12 @@ const menuItems = ref([
     path: '/dashboard',
     submenu: null
   },
+   {
+    title: 'Usuarios',
+    icon: 'fa-tachometer-alt',
+    path: '/user/create',
+    submenu: null
+  },
   {
     title: "Pacientes",
     isHeader: true
