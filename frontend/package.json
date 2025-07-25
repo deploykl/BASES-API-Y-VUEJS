@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@primeuix/themes": "^1.2.1",
     "@vueuse/core": "^13.5.0",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.6",
@@ -14,6 +15,8 @@
     "browser-image-compression": "^2.0.2",
     "core-js": "^3.8.3",
     "pinia": "^3.0.3",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.3.6",
     "register-service-worker": "^1.7.2",
     "sweetalert2": "^11.21.2",
     "v-offline": "^3.5.0",

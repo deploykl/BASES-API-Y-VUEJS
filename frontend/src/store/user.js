@@ -75,58 +75,65 @@ export const useUserStore = defineStore("user", () => {
     imageError.value = value;
   }
 
-  async function updateUserProfile(selectedImage) {
-    loading.value = true;
+async function updateUserProfile(selectedImage) {
+  loading.value = true;
 
-    try {
-      const formData = new FormData();
-      formData.append('username', userData.value.username);
-      formData.append('email', userData.value.email);
-      formData.append('first_name', userData.value.first_name);
-      formData.append('last_name', userData.value.last_name);
-      formData.append('dni', userData.value.dni);
-      formData.append('celular', userData.value.celular);
+  try {
+    const formData = new FormData();
+    formData.append('username', userData.value.username);
+    formData.append('email', userData.value.email);
+    formData.append('first_name', userData.value.first_name);
+    formData.append('last_name', userData.value.last_name);
+    formData.append('dni', userData.value.dni);
+    formData.append('celular', userData.value.celular);
 
-      if (selectedImage) {
-        formData.append('image', selectedImage);
-      }
-
-      // Usando toast.promise directamente
-      const response = await toast.promise(
-        api.put('user/profile/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          }
-        }),
-        {
-          loading: 'Actualizando perfil...',
-          success: (data) => {
-            this.updateUserData({
-              ...data.data,
-              image: data.data.image ? `${data.data.image}?t=${Date.now()}` : ''
-            });
-            this.fetchUserProfile();
-            return 'Perfil actualizado correctamente';
-          },
-          error: (error) => {
-            const errorData = error.response?.data || {};
-            return errorData.username || 
-                   errorData.email || 
-                   errorData.detail || 
-                   'Error al actualizar el perfil';
-          }
-        }
-      );
-
-      return true;
-    } catch (error) {
-      console.error('Error en updateProfile:', error);
-      return false;
-    } finally {
-      loading.value = false;
+    if (selectedImage) {
+      formData.append('image', selectedImage);
     }
+
+    const response = await toast.promise(
+      api.put('user/profile/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      }),
+      {
+        loading: 'Actualizando perfil...',
+        success: (data) => {
+          updateUserData({
+            ...data.data,
+            image: data.data.image ? `${data.data.image}?t=${Date.now()}` : ''
+          });
+          return 'Perfil actualizado correctamente';
+        },
+        error: (error) => {
+          const errorData = error.response?.data || {};
+          let errorMessage = 'Error al actualizar el perfil';
+          
+          if (errorData.username) {
+            errorMessage = errorData.username.join(' ');
+          } else if (errorData.email) {
+            errorMessage = errorData.email.join(' ');
+          } else if (errorData.detail) {
+            errorMessage = errorData.detail;
+          } else if (errorData.non_field_errors) {
+            errorMessage = errorData.non_field_errors.join(' ');
+          }
+          
+          return errorMessage;
+        }
+      }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error en updateProfile:', error);
+    return false;
+  } finally {
+    loading.value = false;
   }
+}
 
   return {
     userData,

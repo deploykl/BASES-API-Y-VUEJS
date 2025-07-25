@@ -16,9 +16,9 @@ def user_image_path(instance, filename):
 
 class User(AbstractUser):
     image = models.ImageField(upload_to=user_image_path, default="img/empty.png", null=True, blank=True)
-    genero = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Género", null=True, blank=True)
-    dni = models.CharField(max_length=20, null=True, blank=True, verbose_name="Celular", validators=[validate_dni])
-    celular = models.CharField(max_length=20, null=True, blank=True, verbose_name="Celular",  validators=[validate_celular],)
+    genero = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True, verbose_name="Género")
+    dni = models.CharField(max_length=8, null=True, blank=True, verbose_name="DNI", validators=[validate_dni])
+    celular = models.CharField(max_length=9, null=True, blank=True, verbose_name="Celular",  validators=[validate_celular],)
     distrito = models.CharField(max_length=20, null=True, blank=True, verbose_name="Distrito")
     departamento = models.CharField(max_length=20, null=True, blank=True, verbose_name="Departamento")
 

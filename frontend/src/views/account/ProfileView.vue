@@ -47,81 +47,38 @@
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Nombre de usuario</label>
-              <div class="input-wrapper">
-                <input type="text" class="form-input" v-model="userStore.userData.username" required>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">DNI</label>
-              <div class="input-wrapper">
-                <input type="text" class="form-input" v-model="userStore.userData.dni" required>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">N° Celular</label>
-              <div class="input-wrapper">
-                <input type="text" class="form-input" v-model="userStore.userData.celular" required>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Correo electrónico</label>
-              <div class="input-wrapper">
-                <input type="email" class="form-input" v-model="userStore.userData.email" required>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-              </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-4 mb-3">
+              <!-- Tu contenido para la primera columna -->
+              <FloatInput id="username" label="Nombre de usuario" v-model="userStore.userData.username"
+                icon="fas fa-user" required />
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Nombres</label>
-              <div class="input-wrapper">
-                <input type="text" class="form-input" v-model="userStore.userData.first_name" required>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="20" y1="8" x2="20" y2="14"></line>
-                  <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-              </div>
+            <div class="col-md-6 col-lg-4 mb-3">
+              <!-- Tu contenido para la segunda columna -->
+              <FloatInput id="firstname" label="Nombres" v-model="userStore.userData.first_name" icon="fas fa-signature"
+                required />
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Apellidos</label>
-              <div class="input-wrapper">
-                <input type="text" class="form-input" v-model="userStore.userData.last_name" required>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="17" y1="8" x2="17" y2="14"></line>
-                  <line x1="20" y1="11" x2="14" y2="11"></line>
-                </svg>
-              </div>
+            <div class="col-md-6 col-lg-4 mb-3">
+              <!-- Tu contenido para la tercera columna -->
+              <FloatInput id="lastname" label="Apellidos" v-model="userStore.userData.last_name" icon="fas fa-users" />
+            </div>
+
+            <div class="col-md-6 col-lg-4 mb-3">
+              <FloatInput id="dni" label="DNI" v-model="userStore.userData.dni" icon="fas fa-id-card" validationType="dni" maxlength="8"
+                />
+            </div>
+
+            <div class="col-md-6 col-lg-4 mb-3">
+              <FloatInput id="phone" label="N° Celular" v-model="userStore.userData.celular" icon="fas fa-mobile-alt" validationType="phone" maxlength="9"/>
+            </div>
+
+            <div class="col-md-6 col-lg-4 mb-3">
+              <FloatInput id="email" label="Correo electrónico" v-model="userStore.userData.email"
+                icon="fas fa-envelope" type="email" />
             </div>
           </div>
-
           <div class="form-actions">
             <router-link to="/change-password" class="btn-secondary">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -168,9 +125,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/store/user'
 import { toast } from 'vue-sonner'
+import FloatInput from '@/components/widgets/FloatInput.vue';
+
 
 const userStore = useUserStore()
 const fileInput = ref(null)
@@ -259,36 +218,49 @@ const updateProfile = async () => {
 }
 
 .profile-card {
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.profile-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-header {
-  padding: 0.5rem 1rem 1rem;
-  background: #364257;
+  background: linear-gradient(135deg, #364257 0%, #2b3548 100%);
+  padding: 1.5rem 2rem;
   color: white;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  transform: rotate(30deg);
 }
 
 .profile-title {
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  position: relative;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .profile-subtitle {
   font-size: 0.95rem;
   opacity: 0.9;
   margin-bottom: 0;
+  position: relative;
 }
+
 
 .profile-content {
   padding: 2rem;
@@ -301,14 +273,27 @@ const updateProfile = async () => {
   margin-bottom: 2rem;
 }
 
+.input-wrapper i.fas {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #364257;
+  opacity: 0.7;
+  font-size: 1rem;
+}
+
+/* Avatar mejorado */
 .avatar-wrapper {
   position: relative;
   width: 120px;
   height: 120px;
   border-radius: 50%;
   cursor: pointer;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   transition: all 0.3s ease;
+  border: 4px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .avatar-wrapper:hover {
@@ -388,11 +373,6 @@ const updateProfile = async () => {
   height: 14px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-}
 
 .form-group {
   margin-bottom: 1rem;
