@@ -66,6 +66,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "dni",
+            "celular",
             "image",  # Este es el campo real del modelo
             "dependencia_name",
             "is_superuser",

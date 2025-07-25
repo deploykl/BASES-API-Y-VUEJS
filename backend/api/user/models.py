@@ -5,7 +5,7 @@ from api.Choises import GENDER_CHOICES
 import uuid
 import os
 from django.utils.text import slugify
-
+from api.validators import validate_dni, validate_celular
 
 def user_image_path(instance, filename):
     ext = os.path.splitext(filename)[1].lower()
@@ -17,10 +17,10 @@ def user_image_path(instance, filename):
 class User(AbstractUser):
     image = models.ImageField(upload_to=user_image_path, default="img/empty.png", null=True, blank=True)
     genero = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Género", null=True, blank=True)
-    celular = models.CharField(max_length=20, null=True, blank=True, verbose_name="Celular")
+    dni = models.CharField(max_length=20, null=True, blank=True, verbose_name="Celular", validators=[validate_dni])
+    celular = models.CharField(max_length=20, null=True, blank=True, verbose_name="Celular",  validators=[validate_celular],)
     distrito = models.CharField(max_length=20, null=True, blank=True, verbose_name="Distrito")
     departamento = models.CharField(max_length=20, null=True, blank=True, verbose_name="Departamento")
-
 
     # Campos del establecimiento laboral
     #codigo = models.CharField(max_length=8, null=True, blank=True, verbose_name="Código de establecimiento")

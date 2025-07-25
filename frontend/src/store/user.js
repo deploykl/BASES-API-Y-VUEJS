@@ -10,6 +10,8 @@ export const useUserStore = defineStore("user", () => {
     email: "",
     first_name: "",
     last_name: "",
+    dni: "",
+    celular: "",
     image: "",
   });
 
@@ -82,6 +84,8 @@ export const useUserStore = defineStore("user", () => {
       formData.append('email', userData.value.email);
       formData.append('first_name', userData.value.first_name);
       formData.append('last_name', userData.value.last_name);
+      formData.append('dni', userData.value.dni);
+      formData.append('celular', userData.value.celular);
 
       if (selectedImage) {
         formData.append('image', selectedImage);
