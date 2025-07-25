@@ -133,10 +133,14 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering = ['-date_joined']
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        user = serializer.save()
+        user.created_by = self.request.user  # Asigna el creador
+        user.save()  # Guarda el usuario
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        user = serializer.save()
+        user.updated_by = self.request.user  # Asigna quien actualizó
+        user.save()  # Guarda el usuario
 
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):
@@ -151,3 +155,8 @@ class UserViewSet(viewsets.ModelViewSet):
         user.is_active = False
         user.save()
         return Response({'status': 'user deactivated'})
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context

@@ -39,7 +39,8 @@
                           <strong>Resetear contraseña</strong>
                         </label>
                       </div>
-                      <small class="text-muted">Marque esta opción si desea establecer una nueva contraseña para este usuario</small>
+                      <small class="text-muted">Marque esta opción si desea establecer una nueva contraseña para este
+                        usuario</small>
                     </div>
                     <div v-if="resetPassword" class="mt-3">
                       <div class="mb-3">
@@ -117,7 +118,7 @@
           <table class="table table-striped table-hover">
             <thead>
               <tr>
-                <th>ID</th>
+                <th>N°</th>
                 <th>Usuario</th>
                 <th>Nombre</th>
                 <th>Email</th>
@@ -128,8 +129,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="user in users" :key="user.id">
-                <td>{{ user.id }}</td>
+              <tr v-for="(user, index) in users" :key="user.id"> <!-- Añadido index -->
+                <td>{{ index + 1 }}</td> <!-- Mostrar posición en la lista -->
                 <td>{{ user.username }}</td>
                 <td>{{ fullName(user) }}</td>
                 <td>{{ user.email }}</td>
@@ -257,10 +258,10 @@ const handleSubmit = async () => {
   }
 
   isSubmitting.value = true
-  
+
   try {
     const dataToSend = { ...form.value }
-    
+
     if (editing.value) {
       if (!resetPassword.value) {
         delete dataToSend.password
@@ -268,7 +269,7 @@ const handleSubmit = async () => {
       } else {
         delete dataToSend.password2
       }
-      
+
       await api.patch(`user/users/${currentUserId.value}/`, dataToSend)
       toast.success('Usuario actualizado correctamente')
     } else {
@@ -276,7 +277,7 @@ const handleSubmit = async () => {
       await api.post('user/users/', dataToSend)
       toast.success('Usuario creado correctamente')
     }
-    
+
     userModal.value.hide()
     fetchUsers()
   } catch (error) {

@@ -11,8 +11,8 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
-    created_by = serializers.StringRelatedField(read_only=True)
-    updated_by = serializers.StringRelatedField(read_only=True)
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -39,21 +39,8 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
-            dni=validated_data.get('dni'),
-            celular=validated_data.get('celular'),
-            is_active=validated_data.get('is_active', True),
-            is_staff=validated_data.get('is_staff', False),
-            is_superuser=validated_data.get('is_superuser', False),
-        )
-        user.created_by = self.context['request'].user
-        user.save()
-        return user
+        # Eliminada la asignación de created_by ya que se manejará en el ViewSet
+        return User.objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
@@ -63,11 +50,26 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         
-        instance.updated_by = self.context['request'].user
-        instance.save()
         return instance
 
+    def get_created_by(self, obj):
+        if obj.created_by:
+            return {
+                'id': obj.created_by.id,
+                'username': obj.created_by.username,
+                'full_name': f"{obj.created_by.first_name or ''} {obj.created_by.last_name or ''}".strip()
+            }
+        return None
 
+    def get_updated_by(self, obj):
+        if obj.updated_by:
+            return {
+                'id': obj.updated_by.id,
+                'username': obj.updated_by.username,
+                'full_name': f"{obj.updated_by.first_name} {obj.updated_by.last_name}"
+            }
+        return None
+    
 class UserProfileSerializer(serializers.ModelSerializer):
     dependencia_name = serializers.ReadOnlyField(source="dependencia.name")
     area_name = serializers.ReadOnlyField(source="area.name")
