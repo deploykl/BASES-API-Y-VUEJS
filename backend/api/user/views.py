@@ -1,21 +1,14 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.decorators import action
-from django.utils import timezone
-from django.utils.crypto import get_random_string
-from datetime import timedelta
-from django.core.mail import send_mail
-from django.conf import settings
 from api.user.serializers import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
+from rest_framework import viewsets
 
 User = get_user_model()
 
@@ -126,3 +119,12 @@ class ChangePasswordView(APIView):
             user.save()
             return Response({"detail": "Contraseña actualizada correctamente"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class EventoViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['estado']  # Permite filtrar por estado
+    ordering_fields = '__all__'
+    ordering = ['-fecha', '-hora_inicio']

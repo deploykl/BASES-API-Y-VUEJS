@@ -2,28 +2,14 @@ from .models import *
 from rest_framework import serializers
 from django.conf import settings
 
-
 # Create your views here.
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
-    dependencia_name = serializers.ReadOnlyField(source="dependencia.name")
-    area_name = serializers.ReadOnlyField(source="area.name")
 
     class Meta:
         model = User
-        fields = [
-            "username",
-            "email",
-            "password",
-            "first_name",
-            "last_name",
-            "password2",
-            "image",
-            "dependencia_name",
-            "is_superuser",
-            "area_name",
-        ]
+        fields = "__all__",
 
     def validate(self, data):
         if data["password"] != data["password2"]:
