@@ -20,7 +20,7 @@
                     <label class="form-label">Email</label>
                     <input v-model="form.email" type="email" class="form-control" required>
                   </div>
-                  <!-- Sección de contraseña mejorada -->
+                  <!-- Sección de contraseña -->
                   <div v-if="!editing" class="mb-3">
                     <div class="mb-3">
                       <label class="form-label">Contraseña</label>
@@ -163,191 +163,171 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue'
 import { Modal } from 'bootstrap'
 import { api } from '@/components/services/Axios'
 import { toast } from 'vue-sonner'
 
-export default {
-  setup() {
-    const users = ref([])
-    const userModal = ref(null)
-    const modalTitle = ref('')
-    const editing = ref(false)
-    const currentUserId = ref(null)
-    const isSubmitting = ref(false)
-    const resetPassword = ref(false)
+// Estado reactivo
+const users = ref([])
+const userModal = ref(null)
+const modalTitle = ref('')
+const editing = ref(false)
+const currentUserId = ref(null)
+const isSubmitting = ref(false)
+const resetPassword = ref(false)
 
-    const form = ref({
-      username: '',
-      email: '',
-      password: '',
-      password2: '',
-      first_name: '',
-      last_name: '',
-      dni: '',
-      celular: '',
-      is_active: true,
-      is_staff: false,
-      is_superuser: false
-    })
+const form = ref({
+  username: '',
+  email: '',
+  password: '',
+  password2: '',
+  first_name: '',
+  last_name: '',
+  dni: '',
+  celular: '',
+  is_active: true,
+  is_staff: false,
+  is_superuser: false
+})
 
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get('user/users/')
-        users.value = response.data
-      } catch (error) {
-        toast.error('Error al cargar usuarios')
-        console.error('Error fetching users:', error)
-      }
-    }
-
-    const openCreateModal = () => {
-      resetForm()
-      modalTitle.value = 'Crear Nuevo Usuario'
-      editing.value = false
-      resetPassword.value = false
-      userModal.value.show()
-    }
-
-    const openEditModal = (user) => {
-      form.value = {
-        username: user.username,
-        email: user.email,
-        password: '',
-        password2: '',
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        dni: user.dni || '',
-        celular: user.celular || '',
-        is_active: user.is_active,
-        is_staff: user.is_staff,
-        is_superuser: user.is_superuser
-      }
-      currentUserId.value = user.id
-      modalTitle.value = 'Editar Usuario'
-      editing.value = true
-      resetPassword.value = false
-      userModal.value.show()
-    }
-
-    const resetForm = () => {
-      form.value = {
-        username: '',
-        email: '',
-        password: '',
-        password2: '',
-        first_name: '',
-        last_name: '',
-        dni: '',
-        celular: '',
-        is_active: true,
-        is_staff: false,
-        is_superuser: false
-      }
-      currentUserId.value = null
-      resetPassword.value = false
-    }
-
-    const handleSubmit = async () => {
-      // Validación de contraseña solo si es necesario
-      if ((!editing.value || resetPassword.value) && form.value.password !== form.value.password2) {
-        toast.error('Las contraseñas no coinciden')
-        return
-      }
-
-      isSubmitting.value = true
-      
-      try {
-        const dataToSend = { ...form.value }
-        
-        if (editing.value) {
-          // En edición, solo enviar contraseña si se quiere resetear
-          if (!resetPassword.value) {
-            delete dataToSend.password
-            delete dataToSend.password2
-          } else {
-            delete dataToSend.password2
-          }
-          
-          await api.patch(`user/users/${currentUserId.value}/`, dataToSend)
-          toast.success('Usuario actualizado correctamente')
-        } else {
-          // En creación, siempre enviar contraseña
-          delete dataToSend.password2
-          await api.post('user/users/', dataToSend)
-          toast.success('Usuario creado correctamente')
-        }
-        
-        userModal.value.hide()
-        fetchUsers()
-      } catch (error) {
-        console.error('Error saving user:', error)
-        if (error.response?.data) {
-          // Mostrar errores específicos del backend
-          for (const key in error.response.data) {
-            if (Array.isArray(error.response.data[key])) {
-              toast.error(`${key}: ${error.response.data[key].join(', ')}`)
-            } else {
-              toast.error(`${key}: ${error.response.data[key]}`)
-            }
-          }
-        } else {
-          toast.error('Error al guardar el usuario')
-        }
-      } finally {
-        isSubmitting.value = false
-      }
-    }
-
-    const activateUser = async (userId) => {
-      try {
-        await api.post(`user/users/${userId}/activate/`)
-        toast.success('Usuario activado correctamente')
-        fetchUsers()
-      } catch (error) {
-        toast.error('Error al activar usuario')
-        console.error('Error activating user:', error)
-      }
-    }
-
-    const deactivateUser = async (userId) => {
-      try {
-        await api.post(`user/users/${userId}/deactivate/`)
-        toast.success('Usuario desactivado correctamente')
-        fetchUsers()
-      } catch (error) {
-        toast.error('Error al desactivar usuario')
-        console.error('Error deactivating user:', error)
-      }
-    }
-
-    const fullName = (user) => {
-      return [user.first_name, user.last_name].filter(Boolean).join(' ') || '-'
-    }
-
-    onMounted(() => {
-      userModal.value = new Modal(document.getElementById('userModal'))
-      fetchUsers()
-    })
-
-    return {
-      users,
-      form,
-      modalTitle,
-      editing,
-      isSubmitting,
-      resetPassword,
-      openCreateModal,
-      openEditModal,
-      handleSubmit,
-      activateUser,
-      deactivateUser,
-      fullName
-    }
+// Métodos
+const fetchUsers = async () => {
+  try {
+    const response = await api.get('user/users/')
+    users.value = response.data
+  } catch (error) {
+    toast.error('Error al cargar usuarios')
+    console.error('Error fetching users:', error)
   }
 }
+
+const openCreateModal = () => {
+  resetForm()
+  modalTitle.value = 'Crear Nuevo Usuario'
+  editing.value = false
+  resetPassword.value = false
+  userModal.value.show()
+}
+
+const openEditModal = (user) => {
+  form.value = {
+    username: user.username,
+    email: user.email,
+    password: '',
+    password2: '',
+    first_name: user.first_name || '',
+    last_name: user.last_name || '',
+    dni: user.dni || '',
+    celular: user.celular || '',
+    is_active: user.is_active,
+    is_staff: user.is_staff,
+    is_superuser: user.is_superuser
+  }
+  currentUserId.value = user.id
+  modalTitle.value = 'Editar Usuario'
+  editing.value = true
+  resetPassword.value = false
+  userModal.value.show()
+}
+
+const resetForm = () => {
+  form.value = {
+    username: '',
+    email: '',
+    password: '',
+    password2: '',
+    first_name: '',
+    last_name: '',
+    dni: '',
+    celular: '',
+    is_active: true,
+    is_staff: false,
+    is_superuser: false
+  }
+  currentUserId.value = null
+  resetPassword.value = false
+}
+
+const handleSubmit = async () => {
+  if ((!editing.value || resetPassword.value) && form.value.password !== form.value.password2) {
+    toast.error('Las contraseñas no coinciden')
+    return
+  }
+
+  isSubmitting.value = true
+  
+  try {
+    const dataToSend = { ...form.value }
+    
+    if (editing.value) {
+      if (!resetPassword.value) {
+        delete dataToSend.password
+        delete dataToSend.password2
+      } else {
+        delete dataToSend.password2
+      }
+      
+      await api.patch(`user/users/${currentUserId.value}/`, dataToSend)
+      toast.success('Usuario actualizado correctamente')
+    } else {
+      delete dataToSend.password2
+      await api.post('user/users/', dataToSend)
+      toast.success('Usuario creado correctamente')
+    }
+    
+    userModal.value.hide()
+    fetchUsers()
+  } catch (error) {
+    console.error('Error saving user:', error)
+    if (error.response?.data) {
+      for (const key in error.response.data) {
+        if (Array.isArray(error.response.data[key])) {
+          toast.error(`${key}: ${error.response.data[key].join(', ')}`)
+        } else {
+          toast.error(`${key}: ${error.response.data[key]}`)
+        }
+      }
+    } else {
+      toast.error('Error al guardar el usuario')
+    }
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const activateUser = async (userId) => {
+  try {
+    await api.post(`user/users/${userId}/activate/`)
+    toast.success('Usuario activado correctamente')
+    fetchUsers()
+  } catch (error) {
+    toast.error('Error al activar usuario')
+    console.error('Error activating user:', error)
+  }
+}
+
+const deactivateUser = async (userId) => {
+  try {
+    await api.post(`user/users/${userId}/deactivate/`)
+    toast.success('Usuario desactivado correctamente')
+    fetchUsers()
+  } catch (error) {
+    toast.error('Error al desactivar usuario')
+    console.error('Error deactivating user:', error)
+  }
+}
+
+const fullName = (user) => {
+  return [user.first_name, user.last_name].filter(Boolean).join(' ') || '-'
+}
+
+// Inicialización
+onMounted(() => {
+  userModal.value = new Modal(document.getElementById('userModal'))
+  fetchUsers()
+})
 </script>
 
 <style scoped>

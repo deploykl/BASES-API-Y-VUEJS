@@ -10,6 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
+from api.permissions import IsSuperUser
 
 User = get_user_model()
 
@@ -124,7 +125,7 @@ class ChangePasswordView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['is_active', 'is_staff', 'is_superuser']
     search_fields = ['username', 'email', 'first_name', 'last_name', 'dni']
