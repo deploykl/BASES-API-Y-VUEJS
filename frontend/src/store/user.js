@@ -108,20 +108,54 @@ async function updateUserProfile(selectedImage) {
           return 'Perfil actualizado correctamente';
         },
         error: (error) => {
+          //console.log('Error completo:', error); // Para depuración
+          //console.log('Datos de error:', error.response?.data); // Para depuración
+          
           const errorData = error.response?.data || {};
           let errorMessage = 'Error al actualizar el perfil';
           
-          if (errorData.username) {
-            errorMessage = errorData.username.join(' ');
-          } else if (errorData.email) {
-            errorMessage = errorData.email.join(' ');
-          } else if (errorData.detail) {
-            errorMessage = errorData.detail;
-          } else if (errorData.non_field_errors) {
-            errorMessage = errorData.non_field_errors.join(' ');
+          // Manejo mejorado de errores
+          if (typeof errorData === 'string') {
+            // Si el error es una cadena directa
+            errorMessage = errorData;
+          } else if (Array.isArray(errorData)) {
+            // Si el error es un array
+            errorMessage = errorData.join(' ');
+          } else if (typeof errorData === 'object') {
+            // Si el error es un objeto
+            if (errorData.dni && errorData.dni.length > 0) {
+              errorMessage = typeof errorData.dni === 'string' 
+                ? errorData.dni 
+                : errorData.dni.join(' ');
+            } else if (errorData.celular && errorData.celular.length > 0) {
+              errorMessage = typeof errorData.celular === 'string' 
+                ? errorData.celular 
+                : errorData.celular.join(' ');
+            } else if (errorData.username) {
+              errorMessage = Array.isArray(errorData.username) 
+                ? errorData.username.join(' ') 
+                : errorData.username;
+            } else if (errorData.email) {
+              errorMessage = Array.isArray(errorData.email) 
+                ? errorData.email.join(' ') 
+                : errorData.email;
+            } else if (errorData.detail) {
+              errorMessage = errorData.detail;
+            } else if (errorData.non_field_errors) {
+              errorMessage = Array.isArray(errorData.non_field_errors) 
+                ? errorData.non_field_errors.join(' ') 
+                : errorData.non_field_errors;
+            } else {
+              // Si no reconocemos la estructura, mostramos el primer error que encontremos
+              const firstErrorKey = Object.keys(errorData)[0];
+              const firstErrorValue = errorData[firstErrorKey];
+              errorMessage = Array.isArray(firstErrorValue) 
+                ? firstErrorValue.join(' ') 
+                : firstErrorValue;
+            }
           }
           
-          return errorMessage;
+          return errorMessage || 'Error desconocido al actualizar el perfil';
         }
       }
     );
