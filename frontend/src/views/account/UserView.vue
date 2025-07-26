@@ -104,7 +104,30 @@
         </div>
       </div>
     </div>
-
+    <!-- Modal de confirmación para eliminar -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">Confirmar Eliminación</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de eliminar permanentemente al usuario <strong>{{ userToDelete?.username }}</strong>?
+            <div class="alert alert-warning mt-3">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Esta acción no se puede deshacer y eliminará todos los datos asociados al usuario.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" @click="proceedDelete" :disabled="isDeleting">
+              {{ isDeleting ? 'Eliminando...' : 'Eliminar Permanentemente' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Listado de usuarios -->
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -154,6 +177,10 @@
                   <button v-else @click="activateUser(user.id)" class="btn btn-sm btn-success me-2">
                     <i class="fas fa-check"></i>
                   </button>
+                  <!-- Nuevo botón para eliminar -->
+                  <button @click="confirmDelete(user)" class="btn btn-sm btn-danger">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -178,6 +205,9 @@ const editing = ref(false)
 const currentUserId = ref(null)
 const isSubmitting = ref(false)
 const resetPassword = ref(false)
+const deleteConfirmModal = ref(null)
+const userToDelete = ref(null)
+const isDeleting = ref(false)
 
 const form = ref({
   username: '',
@@ -210,6 +240,29 @@ const openCreateModal = () => {
   editing.value = false
   resetPassword.value = false
   userModal.value.show()
+}
+const confirmDelete = (user) => {
+  userToDelete.value = user
+  deleteConfirmModal.value.show()
+}
+
+const proceedDelete = async () => {
+  isDeleting.value = true
+  try {
+    await api.delete(`user/users/${userToDelete.value.id}/`)
+    toast.success('Usuario eliminado correctamente')
+    deleteConfirmModal.value.hide()
+    fetchUsers()
+  } catch (error) {
+    console.error('Error deleting user:', error)
+    if (error.response?.data?.detail) {
+      toast.error(error.response.data.detail)
+    } else {
+      toast.error('Error al eliminar el usuario')
+    }
+  } finally {
+    isDeleting.value = false
+  }
 }
 
 const openEditModal = (user) => {
@@ -327,6 +380,7 @@ const fullName = (user) => {
 // Inicialización
 onMounted(() => {
   userModal.value = new Modal(document.getElementById('userModal'))
+  deleteConfirmModal.value = new Modal(document.getElementById('deleteConfirmModal'))
   fetchUsers()
 })
 </script>
@@ -350,5 +404,19 @@ onMounted(() => {
   background-color: #e7f5ff;
   border-color: #d0ebff;
   color: #0a58ca;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+}
+
+.modal-header.bg-danger {
+  background-color: #dc3545 !important;
 }
 </style>
