@@ -58,31 +58,13 @@
               <FloatInput id="last_name" label="Apellidos" v-model="form.last_name" icon="pi pi-users"
                 :invalid="!!errors.last_name" />
 
-             <!-- DNI -->
-<FloatInput 
-  id="dni" 
-  label="DNI" 
-  v-model="form.dni" 
-  icon="pi pi-id-card" 
-  validationType="dni"
-  maxlength="8" 
-  :invalid="!!errors.dni" 
-  :errors="errors"  
-  placeholder="Ingrese 8 dígitos" 
-/>
+              <!-- DNI -->
+              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" validationType="dni"
+                maxlength="8" :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
 
-<!-- Celular -->
-<FloatInput 
-  id="celular" 
-  label="Celular" 
-  v-model="form.celular" 
-  icon="pi pi-phone" 
-  validationType="phone"
-  maxlength="9" 
-  :invalid="!!errors.celular" 
-  :errors="errors"
-  placeholder="Ingrese 9 dígitos" 
-/>
+              <!-- Celular -->
+              <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" validationType="phone"
+                maxlength="9" :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
             </div>
           </div>
           <div class="row">

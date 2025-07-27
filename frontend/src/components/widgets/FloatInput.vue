@@ -1,17 +1,11 @@
 <template>
     <div class="mb-5 position-relative">
         <FloatLabel :variant="variant">
-            <InputText 
-                :id="id" 
-                v-model="inputValue" 
-                :placeholder="placeholder"
-                :class="['form-control', inputClass, { 'is-invalid': invalid || (required && !inputValue && showErrorMessage) || (errors && errors[id]) }]"
-                :autocomplete="autocomplete"
-                v-bind="$attrs" 
-                @keypress="handleKeyPress" 
-                @input="handleInput"
-                @blur="handleBlur"
-            />
+            <InputText :id="id" v-model="inputValue" :placeholder="placeholder" :class="['form-control', inputClass, {
+                'is-invalid': showError,
+                'border-danger': showError
+            }]" :autocomplete="autocomplete" v-bind="$attrs" @keypress="handleKeyPress" @input="handleInput"
+                @blur="handleBlur" />
             <label :for="id" class="form-label">
                 <i v-if="icon" :class="icon" class="me-2"></i>
                 {{ label }}
@@ -23,10 +17,9 @@
             {{ hint }}
         </div>
 
-        <!-- Mensaje de error -->
-        <div v-if="showError" class="invalid-feedback d-block">
+        <Badge v-if="showError" severity="danger" :closable="false" class="mt-1 p-2 text-sm">
             {{ errorText }}
-        </div>
+        </Badge>
     </div>
 </template>
 
@@ -82,16 +75,16 @@ const handleKeyPress = (event) => {
 };
 // Computed para determinar si mostrar error
 const showError = computed(() => {
-    return props.invalid || 
-           (props.required && !inputValue.value && props.showErrorMessage) || 
-           (props.errors && props.errors[props.id]);
+    return props.invalid ||
+        (props.required && !inputValue.value && props.showErrorMessage) ||
+        (props.errors && props.errors[props.id]);
 });
 
 // Computed para el texto de error
 const errorText = computed(() => {
     if (props.errors && props.errors[props.id]) {
-        return Array.isArray(props.errors[props.id]) 
-            ? props.errors[props.id][0] 
+        return Array.isArray(props.errors[props.id])
+            ? props.errors[props.id][0]
             : props.errors[props.id];
     }
     return props.errorMessage || 'Este campo es obligatorio';

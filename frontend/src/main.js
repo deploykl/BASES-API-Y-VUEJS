@@ -13,7 +13,8 @@ import Aura from '@primeuix/themes/aura';
 import Tooltip from 'primevue/tooltip';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
-
+import Badge from 'primevue/badge';
+import OverlayBadge from 'primevue/overlaybadge';
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -62,6 +63,8 @@ app.component('InputText', InputText)
 app.directive('tooltip', Tooltip);
 app.component('Dialog', Dialog);
 app.component('Button', Button);
+app.component('Badge', Badge);
+app.component('OverlayBadge', OverlayBadge);
 
 // Monta la aplicación
 app.mount('#app')

@@ -209,12 +209,23 @@ const changePassword = async () => {
 }
 
 .card-header {
+  background: linear-gradient(135deg, #364257 0%, #2b3548 100%);
+  padding: 1.5rem 2rem;
+  color: white;
   text-align: center;
-  background-color: #364257;
-  color:white;
-  border-bottom: 1px solid #eee;
-  padding: 1.5rem;
-  border-radius: 10px 10px 0 0 !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  transform: rotate(30deg);
 }
 
 .card-body {
