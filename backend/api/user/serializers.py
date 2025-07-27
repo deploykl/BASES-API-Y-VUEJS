@@ -13,13 +13,14 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     updated_by = serializers.SerializerMethodField()
-    
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'password', 
             'first_name', 'last_name', 'dni', 'celular',
-            'is_active', 'is_staff', 'is_superuser',
+            'is_active', 'is_staff', 'is_superuser','full_name',
             'date_joined', 'last_login',
             'created_by', 'updated_by'
         ]
@@ -28,7 +29,9 @@ class UserSerializer(serializers.ModelSerializer):
             'date_joined': {'read_only': True},
             'last_login': {'read_only': True},
         }
-
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip() or "-"
+    
     def validate(self, data):
         # Validación para creación (POST)
         if not self.instance:
@@ -83,6 +86,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     dependencia_name = serializers.ReadOnlyField(source="dependencia.name")
     area_name = serializers.ReadOnlyField(source="area.name")
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -91,13 +95,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            'full_name',
             "dni",
             "celular",
             "image",  # Este es el campo real del modelo
             "dependencia_name",
             "area_name",
         ]
-
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip() or "-"
+    
     def validate_username(self, value):
         # Verificar si el username ya está en uso por otro usuario
         if User.objects.exclude(pk=self.instance.pk).filter(username=value).exists():

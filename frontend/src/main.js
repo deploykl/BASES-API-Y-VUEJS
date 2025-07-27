@@ -16,6 +16,7 @@ import Button from 'primevue/button';
 import Badge from 'primevue/badge';
 import OverlayBadge from 'primevue/overlaybadge';
 import Message from 'primevue/message';
+import ProgressSpinner from 'primevue/progressspinner';
 
 // LIBRERÍAS
 import 'bootstrap'
@@ -68,6 +69,7 @@ app.component('Button', Button);
 app.component('Badge', Badge);
 app.component('OverlayBadge', OverlayBadge);
 app.component('Message', Message);
+app.component('ProgressSpinner', ProgressSpinner);
 
 // Monta la aplicación
 app.mount('#app')

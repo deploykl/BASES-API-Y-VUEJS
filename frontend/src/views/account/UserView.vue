@@ -113,8 +113,8 @@
         </div>
       </template>
 
-      <template #body-fullName="{ data }">
-        {{ data.fullName || '-' }}
+      <template #body-full_name="{ data }"> <!-- Cambiado de body-fullName -->
+        {{ data.full_name || '-' }}
       </template>
 
       <template #body-is_active="{ data }">
@@ -187,6 +187,7 @@ const FORM_STATE = {
   password2: '',
   first_name: '',
   last_name: '',
+  full_name: '',
   dni: '',
   celular: '',
   is_active: true,
@@ -209,7 +210,7 @@ const form = ref({ ...FORM_STATE });
 // Configuración de columnas para la tabla
 const columns = ref([
   { field: 'username', header: 'Usuario', sortable: true },
-  { field: 'fullName', header: 'Nombre', sortable: true, bodyTemplate: true },
+  { field: 'full_name', header: 'Nombre', sortable: true, bodyTemplate: true },
   { field: 'email', header: 'Email', sortable: true },
   { field: 'is_active', header: 'Estado', sortable: true, bodyTemplate: true },
   { field: 'is_staff', header: 'Staff', sortable: true, bodyTemplate: true },
@@ -327,7 +328,6 @@ onMounted(async () => {
     userStore.loading = true;
     await userStore.listUsers();
   } catch (error) {
-    toast.error('Error al cargar usuarios: ' + error.message);
   } finally {
     userStore.loading = false;
   }

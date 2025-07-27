@@ -18,38 +18,13 @@ def user_image_path(instance, filename):
 
 
 class User(AbstractUser):
-    image = models.ImageField(
-        upload_to=user_image_path, default="img/empty.png", null=True, blank=True
-    )
-    genero = models.CharField(
-        max_length=1,
-        choices=GENDER_CHOICES,
-        null=True,
-        blank=True,
-        verbose_name="Género",
-    )
-    dni = models.CharField(
-        max_length=8,
-        null=True,
-        blank=True,
-        verbose_name="DNI",
-        validators=[validate_dni],
-    )
+    image = models.ImageField(upload_to=user_image_path, default="img/empty.png", null=True, blank=True)
+    genero = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True, verbose_name="Género")
+    dni = models.CharField(max_length=8, null=True, blank=True, verbose_name="DNI", validators=[validate_dni])
     is_online = models.BooleanField(default=False, verbose_name="En línea")
-
-    celular = models.CharField(
-        max_length=9,
-        null=True,
-        blank=True,
-        verbose_name="Celular",
-        validators=[validate_celular],
-    )
-    distrito = models.CharField(
-        max_length=20, null=True, blank=True, verbose_name="Distrito"
-    )
-    departamento = models.CharField(
-        max_length=20, null=True, blank=True, verbose_name="Departamento"
-    )
+    celular = models.CharField(max_length=9, null=True, blank=True, verbose_name="Celular", validators=[validate_celular])
+    distrito = models.CharField(max_length=20, null=True, blank=True, verbose_name="Distrito")
+    departamento = models.CharField(max_length=20, null=True, blank=True, verbose_name="Departamento")
 
     # Campos del establecimiento laboral
     # codigo = models.CharField(max_length=8, null=True, blank=True, verbose_name="Código de establecimiento")
@@ -70,33 +45,10 @@ class User(AbstractUser):
     # norte = models.CharField(max_length=100, null=True, blank=True, verbose_name="Dirección del establecimiento")
     # este = models.CharField(max_length=100, null=True, blank=True, verbose_name="Dirección del establecimiento")
 
-    created_by = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_users",
-        verbose_name=_("Creado por"),
-    )
-    updated_by = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="updated_users",
-        verbose_name=_("Actualizado por"),
-    )
-    deleted_by = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="deleted_users",
-        verbose_name=_("Eliminado por"),
-    )
-    deleted_at = models.DateTimeField(
-        null=True, blank=True, verbose_name=_("Fecha de eliminación")
-    )
+    created_by = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_users", verbose_name=_("Creado por"))
+    updated_by = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="updated_users", verbose_name=_("Actualizado por"))
+    deleted_by = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="deleted_users", verbose_name=_("Eliminado por"))
+    deleted_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Fecha de eliminación"))
 
     class Meta:
         verbose_name = _("Usuario")

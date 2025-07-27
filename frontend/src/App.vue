@@ -16,7 +16,9 @@
       <router-view />
     </template>
   </div>
-      <SonnerNotifications />
+  <SonnerNotifications />
+      <!-- Componente de usuarios en línea -->
+    <OnlineStatus v-if="shouldShowLayout" />
 
 </template>
 
@@ -27,6 +29,7 @@ import AppHeader from './components/layout/AppHeader.vue'
 import AppFooter from './components/layout/AppFooter.vue'
 import AppSidebar from './components/layout/AppSidebar.vue'
 import SonnerNotifications from '@/components/utils/SonnerNotifications.vue'
+import OnlineStatus from '@/components/ui/OnlineStatus.vue'
 
 const route = useRoute()
 const isCollapsed = ref(false)
@@ -34,17 +37,17 @@ const isMobile = ref(false)
 
 const shouldShowLayout = computed(() => {
   const isAuthenticated = localStorage.getItem('auth_token');
-  
+
   // Si la ruta especifica hideLayout, no mostrar el layout completo
   if (route.meta.hideLayout) {
     return false;
   }
-  
+
   // Mostrar layout completo si:
   // 1. La ruta requiere autenticación Y el usuario está autenticado
   // 2. O si es una ruta que no es pública (por defecto mostramos layout)
-  return (route.meta.requiresAuth && isAuthenticated) || 
-         (!route.meta.public && isAuthenticated);
+  return (route.meta.requiresAuth && isAuthenticated) ||
+    (!route.meta.public && isAuthenticated);
 });
 
 const updateCssVariables = () => {
@@ -94,6 +97,7 @@ body,
   margin: 0;
   padding: 0;
   background-color: #F4F7FA;
+
 }
 
 .app-layout {
