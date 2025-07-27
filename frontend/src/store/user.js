@@ -37,23 +37,28 @@ export const useUserStore = defineStore("user", () => {
   
   const fullName = computed(() => `${userData.value.first_name} ${userData.value.last_name}`.trim());
 
-  async function fetchUserProfile() {
-    loading.value = true;
-    try {
-      const response = await api.get("user/profile/", {
-      });
-      
-      updateUserData(response.data);
-      imageError.value = false;
-      return response.data;
-    } catch (error) {
-      console.error("Error al obtener perfil:", error);
-      imageError.value = true;
-      throw error;
-    } finally {
-      loading.value = false;
+// user.js
+async function fetchUserProfile() {
+  loading.value = true;
+  try {
+    const response = await api.get("user/profile/");
+    updateUserData(response.data);
+    imageError.value = false;
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      // El interceptor ya maneja el 401, solo necesitamos limpiar si falla el refresh
+      if (error.config.url.includes('token/refresh')) {
+        logout();
+      }
     }
+    console.error("Error al obtener perfil:", error);
+    imageError.value = true;
+    throw error;
+  } finally {
+    loading.value = false;
   }
+}
 
   function updateUserData(newData) {
     userData.value = {

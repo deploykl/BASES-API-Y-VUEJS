@@ -15,6 +15,8 @@ import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import Badge from 'primevue/badge';
 import OverlayBadge from 'primevue/overlaybadge';
+import Message from 'primevue/message';
+
 // LIBRERÍAS
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -65,6 +67,7 @@ app.component('Dialog', Dialog);
 app.component('Button', Button);
 app.component('Badge', Badge);
 app.component('OverlayBadge', OverlayBadge);
+app.component('Message', Message);
 
 // Monta la aplicación
 app.mount('#app')

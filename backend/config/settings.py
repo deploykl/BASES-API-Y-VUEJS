@@ -102,6 +102,8 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,  # Rotar los tokens de refresco
     "BLACKLIST_AFTER_ROTATION": True,  # Añadir tokens de refresco a la lista negra después de rotación
     "UPDATE_LAST_LOGIN": True,  # Actualizar la última fecha de inicio de sesión del usuario
+    "AUTH_HEADER_TYPES": ("Bearer",),
+
 }
 
 # Configuración de DRF Spectacular
