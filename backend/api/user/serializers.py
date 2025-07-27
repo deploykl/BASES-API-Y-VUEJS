@@ -1,15 +1,16 @@
 from .models import *
 from rest_framework import serializers
-from django.conf import settings
-
-
-# Create your views here.
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+class ModuloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Modulo
+        fields = ['id', 'name', 'description']
+        
 class UserSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     updated_by = serializers.SerializerMethodField()
@@ -149,3 +150,4 @@ class ChangePasswordSerializer(serializers.Serializer):
             )
             
         return data
+

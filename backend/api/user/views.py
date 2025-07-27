@@ -4,13 +4,13 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from api.user.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
-from api.permissions import IsSuperUser
+from api.permissions import IsSuperUser, HasModuleAccess
 
 User = get_user_model()
 
@@ -54,15 +54,26 @@ class LoginView(APIView):
                 {'detail': 'Acceso restringido a administradores'},
                 status=status.HTTP_403_FORBIDDEN
             )
+        # Obtener los códigos de los módulos
+        if user.is_superuser:
+            # Si es superusuario, obtener todos los módulos activos
+            modulos = Modulo.objects.filter(is_active=True).values_list('codename', flat=True)
+        else:
+            # Si no, obtener solo los módulos asignados al usuario
+            modulos = user.modulos.filter(is_active=True).values_list('codename', flat=True)
+            modulos = [m.lower() for m in modulos]  # Convertir a minúsculas
 
         # Generar tokens JWT
         refresh = RefreshToken.for_user(user)
-
+        # Obtener los códigos de los módulos asignados al usuario
+        modulos = user.modulos.values_list('codename', flat=True)
         user_data = {
             'access': str(refresh.access_token),
             'refresh': str(refresh),
             'is_superuser': user.is_superuser,
             'is_staff': user.is_staff,
+            'modulos': list(modulos),  # Lista de códigos de módulos
+
         }
 
         return Response(user_data, status=status.HTTP_200_OK)
@@ -125,12 +136,13 @@ class ChangePasswordView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
+    permission_classes = [permissions.IsAuthenticated, HasModuleAccess]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['is_active', 'is_staff', 'is_superuser']
     search_fields = ['username', 'email', 'first_name', 'last_name', 'dni']
     ordering_fields = '__all__'
     ordering = ['-date_joined']
+    required_module = 'Usuarios'  # Define el módulo requerido para esta vista
 
     def perform_create(self, serializer):
         user = serializer.save()

@@ -16,8 +16,22 @@ def user_image_path(instance, filename):
     new_filename = f"{safe_username}-{uuid.uuid4().hex[:8]}{ext}"  # Combina username y parte del UUID
     return f"users/{instance.id}/{new_filename}"
 
+class Modulo(models.Model):
+    codename = models.CharField(max_length=50, unique=True)  # Ej: 'admin', 'almacen', 'informatica'
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"({self.codename})"
+    
+    class Meta:
+        verbose_name = "Módulo"
+        verbose_name_plural = "Módulos"
+        ordering = ['codename']
+    
 class User(AbstractUser):
+    modulos = models.ManyToManyField(Modulo, blank=True, related_name='users')
     image = models.ImageField(upload_to=user_image_path, default="img/empty.png", null=True, blank=True)
     genero = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True, verbose_name="Género")
     dni = models.CharField(max_length=8, null=True, blank=True, verbose_name="DNI", validators=[validate_dni])
@@ -85,3 +99,4 @@ class User(AbstractUser):
         except IntegrityError as e:
             print(f"Error al eliminar usuario: {e}")
             raise
+

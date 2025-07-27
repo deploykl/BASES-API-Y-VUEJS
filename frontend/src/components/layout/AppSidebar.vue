@@ -1,6 +1,6 @@
 <template>
   <div v-if="isMobile && !isCollapsed" class="sidebar-overlay" @click="toggleSidebar"></div>
-<aside :class="['sidebar', { 'collapsed': isCollapsed, 'mobile-hidden': isMobile && isCollapsed }]">
+  <aside :class="['sidebar', { 'collapsed': isCollapsed, 'mobile-hidden': isMobile && isCollapsed }]">
     <div class="sidebar-header">
       <img src="@/assets/logo.png" alt="Logo" class="logo-img">
       <span class="logo-text" v-if="!isCollapsed || isMobile">LOGO NAME</span>
@@ -8,17 +8,17 @@
 
     <nav class="sidebar-menu">
       <ul>
-        <li v-for="(item, index) in menuItems" :key="index" :class="{
+        <li v-for="(item, index) in filteredMenuItems" :key="index" :class="{
           'active': activeMenu === index,
-          'menu-header': item.isHeader, // Clase especial para headers
-          'menu-item-wrapper': !item.isHeader // Clase para items normales
+          'menu-header': item.isHeader,
+          'menu-item-wrapper': !item.isHeader
         }">
           <!-- Renderizado de títulos/categorías -->
           <div v-if="item.isHeader" class="menu-header-title">
             <span v-if="!isCollapsed || isMobile">{{ item.title }}</span>
           </div>
 
-          <!-- Renderizado de items normales (mantén tu código actual) -->
+          <!-- Renderizado de items normales -->
           <template v-else>
             <router-link v-if="!item.submenu" :to="item.path" class="menu-item" @click="() => toggleSubmenu(index)">
               <div class="menu-content">
@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -73,30 +73,51 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  isMobile: {  // Añade esta declaración
+  isMobile: {
     type: Boolean,
     default: false
   }
 })
+
 // Función para alternar el sidebar
 const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value;
-  emit('toggle-collapse', isCollapsed.value);
-  // Añade esta línea para sincronizar con el header
-  emit('update:isCollapsed', isCollapsed.value);
-};
+  isCollapsed.value = !isCollapsed.value
+  emit('toggle-collapse', isCollapsed.value)
+  emit('update:isCollapsed', isCollapsed.value)
+}
 
-
-// Sincronizamos con los cambios de props
-watch(() => props.isCollapsed, (newVal) => {
-  isCollapsed.value = newVal
+// Obtener módulos del usuario desde localStorage
+const userModulos = computed(() => {
+  const modulos = localStorage.getItem('user_modulos')
+  return modulos ? JSON.parse(modulos) : []
 })
 
-// Datos de ejemplo del menú
+const isSuperuser = computed(() => {
+  return localStorage.getItem('is_superuser') === 'true'
+})
+
+// Verificar si el usuario tiene acceso a un módulo específico
+const hasModuleAccess = (moduleName) => {
+  return isSuperuser.value || userModulos.value.includes(moduleName)
+}
+
+const filteredMenuItems = computed(() => {
+  return menuItems.value.filter(item => {
+    if (item.isHeader) return true;
+    
+    // Si no requiere módulo específico, mostrarlo
+    if (!item.requiredModule) return true;
+    
+    // Verificar si el usuario tiene acceso
+    return hasModuleAccess(item.requiredModule);
+  });
+});
+
+// Datos del menú
 const menuItems = ref([
   {
     title: "Principal",
-    isHeader: true // Nueva propiedad para identificar títulos
+    isHeader: true
   },
   {
     title: 'Dashboard',
@@ -104,11 +125,12 @@ const menuItems = ref([
     path: '/dashboard',
     submenu: null
   },
-   {
+  {
     title: 'Usuarios',
-    icon: 'fa-tachometer-alt',
+    icon: 'fa-users',
     path: '/user/create',
-    submenu: null
+    submenu: null,
+    requiredModule: 'Usuarios' // Especificar módulo requerido
   },
   {
     title: "Pacientes",
@@ -141,14 +163,14 @@ const menuItems = ref([
   },
   {
     title: 'Alertas',
-    icon: 'fa-chart-bar',
+    icon: 'fa-bell',
     path: '/alertas',
     submenu: null
   }
 ])
 
 const toggleSubmenu = (index) => {
-  if (menuItems.value[index].submenu) {
+  if (filteredMenuItems.value[index]?.submenu) {
     const submenuIndex = openSubmenus.value.indexOf(index)
     if (submenuIndex === -1) {
       openSubmenus.value.push(index)
@@ -159,7 +181,7 @@ const toggleSubmenu = (index) => {
     activeMenu.value = index
     activeSubmenu.value = null
     if (isMobile.value) {
-      isCollapsed.value = true // Cerrar sidebar después de seleccionar un ítem en móvil
+      isCollapsed.value = true
     }
   }
 }
@@ -176,7 +198,7 @@ const setActiveSubmenu = (menuIndex, submenuIndex) => {
 const handleSubmenuClick = (menuIndex, submenuIndex) => {
   setActiveSubmenu(menuIndex, submenuIndex)
   if (isMobile.value) {
-    isCollapsed.value = true // Cerrar sidebar después de seleccionar un subítem en móvil
+    isCollapsed.value = true
   }
 }
 
@@ -185,9 +207,9 @@ const checkScreenSize = () => {
   const width = window.innerWidth
   isMobile.value = width < 768
   if (isMobile.value) {
-    isCollapsed.value = true // Por defecto colapsado en móvil
+    isCollapsed.value = true
   } else {
-    isCollapsed.value = false // Expandido en desktop
+    isCollapsed.value = false
   }
 }
 
@@ -197,7 +219,7 @@ onMounted(() => {
 
   // Marcar menú activo según la ruta actual
   const currentPath = route.path
-  menuItems.value.forEach((item, index) => {
+  filteredMenuItems.value.forEach((item, index) => {
     if (item.path === currentPath) {
       activeMenu.value = index
     } else if (item.submenu) {
@@ -214,6 +236,10 @@ onMounted(() => {
   })
 })
 
+// Sincronizamos con los cambios de props
+watch(() => props.isCollapsed, (newVal) => {
+  isCollapsed.value = newVal
+})
 </script>
 
 <style scoped>

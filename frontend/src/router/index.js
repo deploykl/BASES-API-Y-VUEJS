@@ -45,15 +45,26 @@ const router = createRouter({
 });
 
 // En router.js
+// En tu router.js
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('auth_token');
+  const userModulos = JSON.parse(localStorage.getItem('user_modulos') || '[]');
+  const isSuperuser = localStorage.getItem('is_superuser') === 'true';
   
-  // Si la ruta requiere autenticación y no está logueado
   if (to.meta.requiresAuth && !isAuthenticated) {
     return next('/login');
   }
   
-  // Solo redirigir desde login si está autenticado
+  // Función helper para comparación case-insensitive
+  const hasModuleAccess = (moduleName) => {
+    return userModulos.some(m => m.toLowerCase() === moduleName.toLowerCase());
+  };
+  
+  // Protección especial para rutas de usuarios
+  if (to.path.startsWith('/user/') && !isSuperuser && !hasModuleAccess('usuarios')) {
+    return next('/unauthorized');
+  }
+  
   if (to.name === 'login' && isAuthenticated) {
     return next('/dashboard');
   }

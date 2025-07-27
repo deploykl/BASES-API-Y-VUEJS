@@ -57,10 +57,9 @@ const maxReconnectAttempts = 5;
 const reconnectDelay = 3000;
 let heartbeatInterval = null;
 
-// WebSocket connection logic (same as before)
 const connectWebSocket = () => {
     loading.value = true;
-
+    
     const token = localStorage.getItem('auth_token');
     if (!token) {
         console.error('No authentication token available');
@@ -72,13 +71,20 @@ const connectWebSocket = () => {
     const wsProtocol = isSecure ? 'wss://' : 'ws://';
     const host = process.env.VUE_APP_WS_HOST || window.location.hostname;
     const port = process.env.VUE_APP_WS_PORT || (isSecure ? 443 : 8000);
-    const wsUrl = `${wsProtocol}${host}:${port}/ws/online-status/?token=${token}`;
+    const wsUrl = `${wsProtocol}${host}:${port}/ws/online-status/`;
 
     socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
         reconnectAttempts = 0;
-        console.log('WebSocket connection established');
+        
+        // Enviar token como primer mensaje
+        socket.send(JSON.stringify({
+            type: 'authenticate',
+            token: token
+        }));
+        
+        // Configurar heartbeat
         heartbeatInterval = setInterval(() => {
             if (socket.readyState === WebSocket.OPEN) {
                 socket.send(JSON.stringify({ type: 'heartbeat' }));
@@ -89,11 +95,13 @@ const connectWebSocket = () => {
     socket.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
-
+            
             if (data.type === 'online_users') {
                 onlineUsers.value = data.users;
                 onlineCount.value = data.users.length;
                 loading.value = false;
+            } else if (data.type === 'authentication_success') {
+                console.log('Autenticación WebSocket exitosa');
             }
         } catch (e) {
             console.error('Error parsing WebSocket message:', e);
@@ -101,28 +109,22 @@ const connectWebSocket = () => {
     };
 
     socket.onclose = (event) => {
-        console.log('WebSocket cerrado:', event);
+        console.log('WebSocket cerrado:', event.code, event.reason);
         if (heartbeatInterval) clearInterval(heartbeatInterval);
 
         if (!event.wasClean && reconnectAttempts < maxReconnectAttempts) {
             setTimeout(() => {
                 reconnectAttempts++;
+                console.log(`Reconectando (intento ${reconnectAttempts}/${maxReconnectAttempts})...`);
                 connectWebSocket();
             }, reconnectDelay);
         }
     };
 
     socket.onerror = (error) => {
-        console.error('Error en WebSocket:', error);
+        console.error('WebSocket error:', error);
         if (heartbeatInterval) clearInterval(heartbeatInterval);
     };
-};
-
-const reconnect = () => {
-    if (socket) {
-        socket.close();
-    }
-    connectWebSocket();
 };
 
 const togglePanel = () => {
@@ -246,7 +248,7 @@ onUnmounted(() => {
 }
 
 .panel-content {
-    width: 300px;
+    width: 200px;
     background: rgba(255, 255, 255, 0.98);
     border-radius: 12px 0 0 12px;
     box-shadow: -4px 0 15px rgba(0, 0, 0, 0.08);

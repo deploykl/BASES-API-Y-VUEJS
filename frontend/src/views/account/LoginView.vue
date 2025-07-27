@@ -98,7 +98,7 @@ const handleSubmit = async () => {
       password: password.value,
     });
 
-    const { access, refresh, is_superuser, is_staff } = response.data;
+    const { access, refresh, is_superuser, is_staff ,modulos } = response.data;
 
     if (!access) {
       errorStore.showMessage('No se recibió token de acceso.') // Usa el store
@@ -110,7 +110,10 @@ const handleSubmit = async () => {
     if (refresh) localStorage.setItem('refreshToken', refresh);
     localStorage.setItem('is_superuser', is_superuser ? 'true' : 'false');
     localStorage.setItem('is_staff', is_staff ? 'true' : 'false');
-
+    // Guardar los módulos como string JSON
+    localStorage.setItem('user_modulos', JSON.stringify(modulos));
+       // Mostrar módulos en consola para debug
+    console.log('Módulos del usuario:', modulos);
     // Redirigir
     router.push('/dashboard');
 
