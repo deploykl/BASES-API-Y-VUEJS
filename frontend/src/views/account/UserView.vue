@@ -9,19 +9,19 @@
           <div class="row">
             <div class="col-md-6">
               <!-- Username -->
-              <!-- Ejemplo para username -->
               <FloatInput id="username" label="Nombre de usuario" v-model="form.username" icon="pi pi-user-edit"
                 :errors="errors" :invalid="!!errors.username" />
+
               <!-- Email -->
               <FloatInput id="email" label="Email" v-model="form.email" type="email" icon="pi pi-envelope"
-                :invalid="!!errors.email" />
+                :invalid="!!errors.email" :errors="errors" />
 
               <!-- Contraseña (solo creación) -->
               <template v-if="!editing">
                 <FloatInput id="password" label="Contraseña" v-model="form.password" type="password" icon="pi pi-lock"
-                  validationType="password" :invalid="!!errors.password" />
+                  :invalid="!!errors.password" :errors="errors" />
                 <FloatInput id="password2" label="Confirmar Contraseña" v-model="form.password2" type="password"
-                  icon="pi pi-lock-open" validationType="password" :invalid="!!errors.password2" />
+                  icon="pi pi-lock-open" :invalid="!!errors.password2" :errors="errors" />
               </template>
 
               <!-- Reset password (edición) -->
@@ -42,9 +42,9 @@
 
                 <div v-if="resetPassword" class="mt-3">
                   <FloatInput id="new_password" label="Nueva Contraseña" v-model="form.password" type="password"
-                    icon="pi pi-key" :required="true" validationType="password" />
+                    icon="pi pi-key" :invalid="!!errors.password" :errors="errors" />
                   <FloatInput id="confirm_new_password" label="Confirmar Nueva Contraseña" v-model="form.password2"
-                    type="password" icon="pi pi-key" :required="true" validationType="password" />
+                    type="password" icon="pi pi-key" :invalid="!!errors.password2" :errors="errors" />
                 </div>
               </div>
             </div>
@@ -52,21 +52,22 @@
             <div class="col-md-6">
               <!-- Nombres -->
               <FloatInput id="first_name" label="Nombres" v-model="form.first_name" icon="pi pi-user"
-                :invalid="!!errors.first_name" />
+                :invalid="!!errors.first_name" :errors="errors" />
 
               <!-- Apellidos -->
               <FloatInput id="last_name" label="Apellidos" v-model="form.last_name" icon="pi pi-users"
-                :invalid="!!errors.last_name" />
+                :invalid="!!errors.last_name" :errors="errors" />
 
               <!-- DNI -->
-              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" validationType="dni"
-                maxlength="8" :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
+              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" maxlength="8"
+                :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
 
               <!-- Celular -->
-              <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" validationType="phone"
-                maxlength="9" :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
+              <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" maxlength="9"
+                :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
             </div>
           </div>
+
           <div class="row">
             <div class="col-md-4">
               <div class="form-check form-switch mb-3">
@@ -104,8 +105,8 @@
     </ModalBase>
 
     <!-- Listado de usuarios -->
-    <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true"> <template
-        #header>
+    <DataTableWrapper :data="userStore.users" :columns="columns" :loading="userStore.loading" :actions="true">
+      <template #header>
         <div class="flex justify-content-between align-items-center">
           <h2 class="m-0">Gestión de Usuarios</h2>
           <Button icon="pi pi-plus" label="Nuevo Usuario" @click="openCreateModal" class="p-button-sm" />
@@ -193,10 +194,8 @@ const FORM_STATE = {
   is_superuser: false
 };
 
-// Estado reactivo
 const showUserModal = ref(false);
 const showDeleteModal = ref(false);
-const modalTitle = ref('');
 const editing = ref(false);
 const isSubmitting = ref(false);
 const resetPassword = ref(false);
@@ -244,10 +243,12 @@ const openEditModal = (user) => {
 const resetForm = () => {
   form.value = { ...FORM_STATE };
   resetPassword.value = false;
+  errors.value = {};
 };
 
 const closeUserModal = () => {
   showUserModal.value = false;
+  resetForm();
 };
 
 const confirmDelete = (user) => {
@@ -256,17 +257,25 @@ const confirmDelete = (user) => {
 };
 
 const closeDeleteModal = () => {
-  showDeleteModal.value = false;
+  try {
+    showDeleteModal.value = false;
+    // Pequeño delay para la animación antes de resetear
+    setTimeout(() => {
+      userToDelete.value = null;
+    }, 300);
+  } catch (error) {
+    console.error("Error al cerrar modal:", error);
+  }
 };
 
 const proceedDelete = async () => {
   isDeleting.value = true;
   try {
-    await userStore.deleteUser(userToDelete.value.id);
-    toast.success('Usuario eliminado correctamente');
-    closeDeleteModal();
+    const success = await userStore.deleteUser(userToDelete.value.id);
+    if (success) {
+      closeDeleteModal();
+    }
   } catch (error) {
-    toast.error('Error al eliminar el usuario');
   } finally {
     isDeleting.value = false;
   }
@@ -311,23 +320,18 @@ const handleSubmit = async () => {
     isSubmitting.value = false;
   }
 };
+
 // Inicialización
 onMounted(async () => {
   try {
     userStore.loading = true;
     await userStore.listUsers();
   } catch (error) {
-    toast.error('Error al cargar usuarios');
+    toast.error('Error al cargar usuarios: ' + error.message);
   } finally {
     userStore.loading = false;
   }
 });
 </script>
 
-<style scoped>
-.custom-badge {
-  font-size: 0.65rem;
-  padding: 0.25em 0.4em;
-  line-height: 1;
-}
-</style>
+<style scoped></style>

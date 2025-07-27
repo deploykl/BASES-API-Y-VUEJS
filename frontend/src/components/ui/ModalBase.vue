@@ -7,12 +7,10 @@
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
     @hide="handleClose"
   >
-    <!-- Slot para el contenido principal -->
     <div class="dialog-content">
       <slot name="content"></slot>
     </div>
     
-    <!-- Slot para el footer -->
     <template #footer>
       <slot name="footer">
         <Button 
@@ -35,17 +33,17 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'; // Añade computed aquí
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
   visible: Boolean,
   title: String,
-  mode: {  // Nuevo prop para el modo de operación
+  mode: {
     type: String,
     default: 'create',
-    validator: value => ['create', 'edit', 'delete'].includes(value)
+    validator: value => ['create', 'edit', 'delete', 'view', 'custom'].includes(value)
   },
-  entityName: {  // Nombre de la entidad (ej: "usuario")
+  entityName: {
     type: String,
     default: 'registro'
   },
@@ -61,30 +59,30 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  loading: Boolean
+  loading: Boolean,
+  hideFooter: Boolean
 });
-const dynamicTitle = computed(() => {
-  const titles = {
-    create: `Crear nuevo ${props.entityName}`,
-    edit: `Editar ${props.entityName}`,
-    delete: `Confirmar eliminación`
-  };
-  return props.title || titles[props.mode]; // Usa el título personalizado o el generado
-});
+
 const emit = defineEmits(['update:visible', 'close', 'confirm']);
 
 const internalVisible = ref(props.visible);
+
+const dynamicTitle = computed(() => {
+  const titles = {
+    create: `Crear ${props.entityName}`,
+    edit: `Editar ${props.entityName}`,
+    delete: `Eliminar ${props.entityName}`,
+    view: `Detalles de ${props.entityName}`
+  };
+  return props.title || titles[props.mode] || props.entityName;
+});
 
 watch(() => props.visible, (newVal) => {
   internalVisible.value = newVal;
 });
 
-const handleConfirm = async () => {
-  try {
-    await emit('confirm');
-  } catch (error) {
-    console.error('Error en confirmación:', error);
-  }
+const handleConfirm = () => {
+  emit('confirm');
 };
 
 const handleClose = () => {
@@ -95,9 +93,7 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-
-
 .dialog-content {
-  padding: 1.5rem 0; /* 1.5rem arriba/abajo, 0 en lados */
+  padding: 1.5rem 0;
 }
 </style>

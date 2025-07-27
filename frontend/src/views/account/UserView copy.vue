@@ -1,23 +1,17 @@
 <template>
   <div class="container-fluid mt-4">
     <!-- Modal para crear/editar usuario -->
-  <ModalBase 
-    :visible="showUserModal"
-    :mode="editing ? 'edit' : 'create'"
-    entityName="usuario"
-    :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'"
-    :loading="isSubmitting"
-    @close="closeUserModal"
-    @confirm="handleSubmit"
-  >
+    <ModalBase :visible="showUserModal" :mode="editing ? 'edit' : 'create'" entityName="usuario"
+      :confirm-text="isSubmitting ? 'Guardando...' : 'Guardar'" :loading="isSubmitting" @close="closeUserModal"
+      @confirm="handleSubmit">
       <template #content>
         <form @submit.prevent="handleSubmit">
           <div class="row">
             <div class="col-md-6">
               <!-- Username -->
+              <!-- Ejemplo para username -->
               <FloatInput id="username" label="Nombre de usuario" v-model="form.username" icon="pi pi-user-edit"
-                :invalid="!!errors.username" />
-
+                :errors="errors" :invalid="!!errors.username" />
               <!-- Email -->
               <FloatInput id="email" label="Email" v-model="form.email" type="email" icon="pi pi-envelope"
                 :invalid="!!errors.email" />
@@ -27,7 +21,7 @@
                 <FloatInput id="password" label="Contraseña" v-model="form.password" type="password" icon="pi pi-lock"
                   validationType="password" :invalid="!!errors.password" />
                 <FloatInput id="password2" label="Confirmar Contraseña" v-model="form.password2" type="password"
-                  icon="pi pi-lock-open"validationType="password" :invalid="!!errors.password2" />
+                  icon="pi pi-lock-open" validationType="password" :invalid="!!errors.password2" />
               </template>
 
               <!-- Reset password (edición) -->
@@ -65,21 +59,12 @@
                 :invalid="!!errors.last_name" />
 
               <!-- DNI -->
-              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" validationType="dni" maxlength="8"
-                :invalid="!!errors.dni" placeholder="Ingrese 8 dígitos" />
+              <FloatInput id="dni" label="DNI" v-model="form.dni" icon="pi pi-id-card" validationType="dni"
+                maxlength="8" :invalid="!!errors.dni" :errors="errors" placeholder="Ingrese 8 dígitos" />
 
               <!-- Celular -->
-              <FloatInput 
-  id="celular" 
-  label="Celular" 
-  v-model="form.celular" 
-  icon="pi pi-phone" 
-  validationType="phone" 
-  maxlength="9"
-  :invalid="!!errors.celular" 
-  :errors="errors"
-  placeholder="Ingrese 9 dígitos" 
-/>
+              <FloatInput id="celular" label="Celular" v-model="form.celular" icon="pi pi-phone" validationType="phone"
+                maxlength="9" :invalid="!!errors.celular" :errors="errors" placeholder="Ingrese 9 dígitos" />
             </div>
           </div>
           <div class="row">
@@ -107,16 +92,8 @@
     </ModalBase>
 
     <!-- Modal de confirmación para eliminar -->
-   <ModalBase
-    :visible="showDeleteModal"
-    mode="delete"
-    entityName="usuario"
-    confirm-text="Eliminar Permanentemente"
-    confirm-class="p-button-danger"
-    :loading="isDeleting"
-    @close="closeDeleteModal"
-    @confirm="proceedDelete"
-  >
+    <ModalBase :visible="showDeleteModal" mode="delete" entityName="usuario" confirm-text="Eliminar Permanentemente"
+      confirm-class="p-button-danger" :loading="isDeleting" @close="closeDeleteModal" @confirm="proceedDelete">
       <template #content>
         ¿Estás seguro de eliminar permanentemente al usuario <strong>{{ userToDelete?.username }}</strong>?
         <div class="alert alert-warning mt-3">
@@ -219,7 +196,6 @@ const FORM_STATE = {
 // Estado reactivo
 const showUserModal = ref(false);
 const showDeleteModal = ref(false);
-const modalTitle = ref('');
 const editing = ref(false);
 const isSubmitting = ref(false);
 const resetPassword = ref(false);
@@ -252,7 +228,7 @@ const openEditModal = (user) => {
   editing.value = true;
   resetPassword.value = false;
   userToEdit.value = user;
-  
+
   // Copia los datos del usuario al formulario
   form.value = {
     ...FORM_STATE, // Valores por defecto
@@ -260,7 +236,7 @@ const openEditModal = (user) => {
     password: '',  // Resetear contraseñas
     password2: ''
   };
-  
+
   showUserModal.value = true;
 };
 
@@ -285,11 +261,10 @@ const closeDeleteModal = () => {
 const proceedDelete = async () => {
   isDeleting.value = true;
   try {
-    await userStore.deleteUser(userToDelete.value.id);
-    toast.success('Usuario eliminado correctamente');
-    closeDeleteModal();
-  } catch (error) {
-    toast.error('Error al eliminar el usuario');
+    const success = await userStore.deleteUser(userToDelete.value.id);
+    if (success) {
+      closeDeleteModal();
+    }
   } finally {
     isDeleting.value = false;
   }
@@ -306,7 +281,7 @@ const handleSubmit = async () => {
 
   try {
     const { password2, ...userData } = form.value;
-    
+
     if (editing.value && !resetPassword.value) {
       delete userData.password;
     }
@@ -317,13 +292,12 @@ const handleSubmit = async () => {
       await userStore.createUser(userData);
     }
 
-    closeUserModal();
   } catch (error) {
     if (error.response?.data) {
       // Asignar errores al objeto errors para mostrarlos en los campos
       errors.value = error.response.data;
-      
-      // Mostrar solo errores generales (non_field_errors) en toast
+
+      // Mostrar errores generales en toast solo si no son errores de campo específicos
       if (error.response.data.non_field_errors) {
         toast.error(error.response.data.non_field_errors.join(', '));
       }

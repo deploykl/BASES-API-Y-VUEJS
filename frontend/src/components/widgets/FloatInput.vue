@@ -17,7 +17,7 @@
             {{ hint }}
         </div>
 
-        <Badge v-if="showError" severity="danger" :closable="false" class="mt-1 p-2 text-sm">
+        <Badge v-if="showError" severity="danger" size="small" :closable="false" class="mt-1 p-2 text-sm">
             {{ errorText }}
         </Badge>
     </div>
