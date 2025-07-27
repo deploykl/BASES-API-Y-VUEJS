@@ -9,8 +9,7 @@
                 :autocomplete="autocomplete"
                 v-bind="$attrs" 
                 @keypress="handleKeyPress" 
-                @input="handleInput"
-                @blur="handleBlur"
+                @input="handleInput" 
             />
             <label :for="id" class="form-label">
                 <i v-if="icon" :class="icon" class="me-2"></i>
@@ -23,9 +22,9 @@
             {{ hint }}
         </div>
 
-        <!-- Mensaje de error -->
-        <div v-if="showError" class="invalid-feedback d-block">
-            {{ errorText }}
+        <!-- Mostrar error del backend si existe, sino mostrar validación frontend -->
+        <div v-if="(errors && errors[id]) || ((invalid || (required && !inputValue)) && showErrorMessage)" class="invalid-feedback">
+            {{ (errors && errors[id]) || errorMessage || 'Este campo es obligatorio' }}
         </div>
     </div>
 </template>
@@ -80,26 +79,7 @@ const handleKeyPress = (event) => {
         }
     }
 };
-// Computed para determinar si mostrar error
-const showError = computed(() => {
-    return props.invalid || 
-           (props.required && !inputValue.value && props.showErrorMessage) || 
-           (props.errors && props.errors[props.id]);
-});
 
-// Computed para el texto de error
-const errorText = computed(() => {
-    if (props.errors && props.errors[props.id]) {
-        return Array.isArray(props.errors[props.id]) 
-            ? props.errors[props.id][0] 
-            : props.errors[props.id];
-    }
-    return props.errorMessage || 'Este campo es obligatorio';
-});
-
-const handleBlur = () => {
-    emit('blur');
-};
 const handleInput = (event) => {
     // Solo actualizamos el valor si no excede los límites
     if (props.validationType === 'dni' && event.target.value.length > 8) {

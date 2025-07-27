@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'password', 
             'first_name', 'last_name', 'dni', 'celular',
             'is_active', 'is_staff', 'is_superuser',
-            'date_joined', 'last_login',
+            'date_joined', 'last_login', 'image',
             'created_by', 'updated_by'
         ]
         extra_kwargs = {
@@ -95,8 +95,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "celular",
             "image",  # Este es el campo real del modelo
             "dependencia_name",
+            "is_superuser",
             "area_name",
         ]
+        read_only_fields = ["is_superuser"]  # Campos que no se pueden modificar
 
     def validate_username(self, value):
         # Verificar si el username ya está en uso por otro usuario
@@ -129,16 +131,8 @@ class ChangePasswordSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(required=True, min_length=8)
 
     def validate(self, data):
-        # Validar que las contraseñas coincidan
         if data["new_password"] != data["confirm_password"]:
             raise serializers.ValidationError(
                 {"confirm_password": "Las contraseñas no coinciden"}
             )
-        
-        # Validar que la nueva contraseña no sea igual a la actual
-        if data["new_password"] == data["current_password"]:
-            raise serializers.ValidationError(
-                {"new_password": "La nueva contraseña no puede ser igual a la actual"}
-            )
-            
         return data

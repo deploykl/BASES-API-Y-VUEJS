@@ -38,13 +38,9 @@ export const useUserStore = defineStore("user", () => {
   const fullName = computed(() => `${userData.value.first_name} ${userData.value.last_name}`.trim());
 
   async function fetchUserProfile() {
-    const accessToken = localStorage.getItem("auth_token");
-    if (!accessToken) return null;
-
     loading.value = true;
     try {
       const response = await api.get("user/profile/", {
-        headers: { Authorization: `Bearer ${accessToken}` },
       });
       
       updateUserData(response.data);
@@ -95,7 +91,6 @@ async function updateUserProfile(selectedImage) {
       api.put('user/profile/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         }
       }),
       {
@@ -108,9 +103,6 @@ async function updateUserProfile(selectedImage) {
           return 'Perfil actualizado correctamente';
         },
         error: (error) => {
-          //console.log('Error completo:', error); // Para depuración
-          //console.log('Datos de error:', error.response?.data); // Para depuración
-          
           const errorData = error.response?.data || {};
           let errorMessage = 'Error al actualizar el perfil';
           
@@ -154,7 +146,6 @@ async function updateUserProfile(selectedImage) {
                 : firstErrorValue;
             }
           }
-          
           return errorMessage || 'Error desconocido al actualizar el perfil';
         }
       }

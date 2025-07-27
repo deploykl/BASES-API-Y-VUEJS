@@ -160,3 +160,17 @@ class UserViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+
+    @action(detail=True, methods=['post'])
+    def make_staff(self, request, pk=None):
+        user = self.get_object()
+        user.is_staff = True
+        user.save()
+        return Response({'status': 'user promoted to staff'})
+    
+    @action(detail=True, methods=['post'])
+    def remove_staff(self, request, pk=None):
+        user = self.get_object()
+        user.is_staff = False
+        user.save()
+        return Response({'status': 'user removed from staff'})

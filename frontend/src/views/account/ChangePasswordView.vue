@@ -13,6 +13,7 @@
                 :type="showCurrentPassword ? 'text' : 'password'" 
                 class="form-control" 
                 v-model="passwords.current_password" 
+                :class="{ 'is-invalid': errors.current_password }"
                 required
               >
               <button 
@@ -23,6 +24,9 @@
                 <i :class="showCurrentPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
             </div>
+            <div v-if="errors.current_password" class="invalid-feedback d-block">
+              {{ errors.current_password }}
+            </div>
           </div>
           
           <div class="mb-3">
@@ -32,6 +36,7 @@
                 :type="showNewPassword ? 'text' : 'password'" 
                 class="form-control" 
                 v-model="passwords.new_password" 
+                :class="{ 'is-invalid': errors.new_password }"
                 required
               >
               <button 
@@ -43,6 +48,9 @@
               </button>
             </div>
             <small class="form-text text-muted">Mínimo 8 caracteres</small>
+            <div v-if="errors.new_password" class="invalid-feedback d-block">
+              {{ errors.new_password }}
+            </div>
           </div>
           
           <div class="mb-3">
@@ -52,6 +60,7 @@
                 :type="showConfirmPassword ? 'text' : 'password'" 
                 class="form-control" 
                 v-model="passwords.confirm_password" 
+                :class="{ 'is-invalid': errors.confirm_password }"
                 required
               >
               <button 
@@ -61,6 +70,9 @@
               >
                 <i :class="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
+            </div>
+            <div v-if="errors.confirm_password" class="invalid-feedback d-block">
+              {{ errors.confirm_password }}
             </div>
           </div>
           
@@ -93,19 +105,51 @@ const passwords = ref({
   confirm_password: ''
 })
 
+const errors = ref({
+  current_password: '',
+  new_password: '',
+  confirm_password: ''
+})
+
 const loading = ref(false)
 const showCurrentPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 
+const resetErrors = () => {
+  errors.value = {
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  }
+}
+
 const changePassword = async () => {
-  if (passwords.value.new_password !== passwords.value.confirm_password) {
-    toast.error('Las contraseñas no coinciden')
-    return
+  resetErrors()
+  let hasErrors = false
+
+  // Validación de frontend
+  if (!passwords.value.current_password) {
+    errors.value.current_password = 'La contraseña actual es requerida'
+    hasErrors = true
   }
 
   if (passwords.value.new_password.length < 8) {
-    toast.error('La contraseña debe tener al menos 8 caracteres')
+    errors.value.new_password = 'La contraseña debe tener al menos 8 caracteres'
+    hasErrors = true
+  }
+
+  if (passwords.value.new_password !== passwords.value.confirm_password) {
+    errors.value.confirm_password = 'Las contraseñas no coinciden'
+    hasErrors = true
+  }
+
+  if (passwords.value.new_password === passwords.value.current_password) {
+    errors.value.new_password = 'La nueva contraseña no puede ser igual a la actual'
+    hasErrors = true
+  }
+
+  if (hasErrors) {
     return
   }
 
@@ -133,12 +177,16 @@ const changePassword = async () => {
   } catch (err) {
     console.error('Error al cambiar contraseña:', err)
     
-    if (err.response?.data?.current_password) {
-      toast.error(err.response.data.current_password[0])
-    } else if (err.response?.data?.confirm_password) {
-      toast.error(err.response.data.confirm_password[0])
-    } else if (err.response?.data?.detail) {
-      toast.error(err.response.data.detail)
+    // Manejo de errores del backend
+    if (err.response?.data) {
+      // Asignar errores a los campos correspondientes
+      for (const [field, messages] of Object.entries(err.response.data)) {
+        if (errors.value.hasOwnProperty(field)) {
+          errors.value[field] = Array.isArray(messages) ? messages[0] : messages
+        } else {
+          toast.error(Array.isArray(messages) ? messages[0] : messages)
+        }
+      }
     } else {
       toast.error('Error al cambiar la contraseña')
     }

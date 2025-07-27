@@ -12,7 +12,7 @@
 import { ref } from 'vue'
 import { Toaster } from 'vue-sonner'
 
-const theme = ref('light') // Puedes cambiarlo dinámicamente
+const theme = ref('dark') // Puedes cambiarlo dinámicamente
 </script>
 
 <style>

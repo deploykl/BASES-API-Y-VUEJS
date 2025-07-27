@@ -10,6 +10,9 @@ import PrimeVue from 'primevue/config'
 import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
 import Aura from '@primeuix/themes/aura';
+import Tooltip from 'primevue/tooltip';
+import Dialog from 'primevue/dialog';
+import Button from 'primevue/button';
 
 // LIBRERÍAS
 import 'bootstrap'
@@ -56,6 +59,9 @@ app.component('ErrorMessage', ErrorMessage)
 app.component('SonnerNotifications', SonnerNotifications)
 app.component('FloatLabel', FloatLabel)
 app.component('InputText', InputText)
+app.directive('tooltip', Tooltip);
+app.component('Dialog', Dialog);
+app.component('Button', Button);
 
 // Monta la aplicación
 app.mount('#app')
