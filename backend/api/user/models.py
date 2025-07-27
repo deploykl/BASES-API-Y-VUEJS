@@ -35,6 +35,8 @@ class User(AbstractUser):
         verbose_name="DNI",
         validators=[validate_dni],
     )
+    is_online = models.BooleanField(default=False, verbose_name="En línea")
+
     celular = models.CharField(
         max_length=9,
         null=True,

@@ -47,3 +47,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_id': event['sender_id'],
             'is_me': event.get('is_me', False)
         }))
+        
