@@ -4,6 +4,7 @@ import DashBoardView from "../views/DashBoardView.vue";
 import NotFoundView from "../components/layout/NotFoundView.vue"; // Componente para 404
 import AdminPoi from "./AdminPoi";
 import AdminAuth from "./AdminAuth";
+import AdminGore from "./AdminGore";
 
 const routes = [
   {
@@ -37,6 +38,7 @@ const routes = [
   // INTEGRANDO POI ADMIN ROUTES
   ...AdminPoi,
   ...AdminAuth,
+  ...AdminGore,
 ];
 
 const router = createRouter({

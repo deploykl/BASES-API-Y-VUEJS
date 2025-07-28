@@ -42,6 +42,7 @@ THIRD_APPS = [
 OWN_APPS = [
     "api",
     "api.user",
+    "api.gore",
 ]
 
 INSTALLED_APPS = BASE_APPS + THIRD_APPS + OWN_APPS

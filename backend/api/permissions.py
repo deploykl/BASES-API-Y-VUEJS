@@ -24,3 +24,17 @@ class HasModuleAccess(BasePermission):
             
         # Verificar si el usuario tiene el módulo asignado
         return request.user.modulos.filter(codename=required_module, is_active=True).exists()
+    
+class JerarquiaPermissions(BasePermission):
+    def has_permission(self, request, view):
+        if request.method == 'GET':
+            return True
+            
+        if request.method == 'POST':
+            nivel_destino = request.data.get('nivel_acceso', 'HOSPITAL')
+            return request.user.puede_crear_usuario(nivel_destino)
+        
+        return True
+    
+    def has_object_permission(self, request, view, obj):
+        return request.user.puede_ver_usuario(obj)

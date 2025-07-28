@@ -8,6 +8,8 @@
           <main class="content-area">
             <router-view />
           </main>
+              <OnlineStatus v-if="shouldShowLayout" />
+
           <AppFooter />
         </div>
       </div>
@@ -18,7 +20,6 @@
   </div>
   <SonnerNotifications />
       <!-- Componente de usuarios en línea -->
-    <OnlineStatus v-if="shouldShowLayout" />
 
 </template>
 

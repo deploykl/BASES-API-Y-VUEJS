@@ -130,7 +130,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 instance.image.delete(save=False)
         return super().update(instance, validated_data)
 
-
 class ChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True, min_length=8)

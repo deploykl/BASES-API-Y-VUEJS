@@ -9,6 +9,8 @@ from django.utils.text import slugify
 from api.validators import validate_dni, validate_celular
 from django.utils.translation import gettext_lazy as _
 
+from api.gore.models import *
+
 
 def user_image_path(instance, filename):
     ext = os.path.splitext(filename)[1].lower()
@@ -100,3 +102,50 @@ class User(AbstractUser):
             print(f"Error al eliminar usuario: {e}")
             raise
 
+
+#======================================================= GOBIERNO REGIONAL TEST =======================================
+    # Campos de jerarquía
+    nivel_acceso = models.CharField(
+        max_length=20,
+        choices=[
+            ('REGIONAL', 'Gobierno Regional'),
+            ('RED', 'Red de Salud'),
+            ('HOSPITAL', 'Hospital'),
+            ('ADMIN', 'Administrador Total')
+        ],
+        default='HOSPITAL'
+    )
+    
+    departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True)
+    red = models.ForeignKey(Red, on_delete=models.SET_NULL, null=True, blank=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Métodos para verificar permisos
+    def puede_crear_usuario(self, nivel_destino):
+        """Determina si puede crear un usuario del nivel especificado"""
+        jerarquia = ['HOSPITAL', 'RED', 'REGIONAL', 'ADMIN']
+        try:
+            return jerarquia.index(self.nivel_acceso) >= jerarquia.index(nivel_destino)
+        except ValueError:
+            return False
+    
+    def puede_ver_usuario(self, otro_usuario):
+        """Determina si puede ver/modificar a otro usuario"""
+        if self.nivel_acceso == 'ADMIN':
+            return True
+        if self.nivel_acceso == 'REGIONAL':
+            return otro_usuario.departamento == self.departamento
+        if self.nivel_acceso == 'RED':
+            return otro_usuario.red == self.red
+        if self.nivel_acceso == 'HOSPITAL':
+            return otro_usuario.hospital == self.hospital
+        return False
+    
+    def usuarios_creables(self):
+        """Devuelve los niveles de usuario que puede crear"""
+        jerarquia = ['HOSPITAL', 'RED', 'REGIONAL']
+        try:
+            indice = jerarquia.index(self.nivel_acceso)
+            return jerarquia[indice+1:] if indice+1 < len(jerarquia) else []
+        except ValueError:
+            return []

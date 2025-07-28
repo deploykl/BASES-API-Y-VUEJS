@@ -22,7 +22,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {
-            'fields': ('first_name', 'last_name', 'email', 'image', 'genero', 'dni', 'celular')
+            'fields': ('first_name', 'last_name', 'email', 'image', 'genero', 'dni', 'celular' , 'nivel_acceso')
         }),
         (_('Location info'), {
             'fields': ('departamento', 'distrito'),

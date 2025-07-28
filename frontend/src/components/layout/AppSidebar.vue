@@ -166,6 +166,12 @@ const menuItems = ref([
     icon: 'fa-bell',
     path: '/alertas',
     submenu: null
+  },
+    {
+    title: 'Presupuesto',
+    icon: 'fa-bell',
+    path: '/presupuesto',
+    submenu: null
   }
 ])
 
